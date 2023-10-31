@@ -29,6 +29,11 @@
   opacity: 1 !important;
 }
 
+.selected_active {
+  border: 2px solid #1e66aa !important;
+  border-radius: 6px !important;
+  opacity: 1 !important;
+}
 .event-circle {
   width: 5px;
   height: 5px;

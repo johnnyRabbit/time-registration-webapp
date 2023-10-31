@@ -157,6 +157,7 @@ const EventCalendar: React.FC<EventProps> = ({
       setSelectedDates([...selectedDates, formattedDate]);
       setDate(formattedDate);
     } else {
+      setSelectedDate(formattedDate);
       setSelectedDates(selectedDates.filter((d) => d !== formattedDate));
     }
   };
@@ -231,6 +232,8 @@ const EventCalendar: React.FC<EventProps> = ({
         tileClassName={({ date }) => {
           return selectedDates.includes(date.toLocaleDateString())
             ? "selected"
+            : selectedDate === date.toLocaleDateString()
+            ? "selected_active"
             : "";
         }}
         tileContent={({ date }) =>
@@ -238,8 +241,16 @@ const EventCalendar: React.FC<EventProps> = ({
         }
       />
       <div className="flex flex-row pl-6 mt-4 mb-4">
-        <span className="text-[#1C85E8] font-semibold">25 - </span>
-        <span className="text-[black] font-semibold">Holiday </span>
+        <div className="flex flex-row text-xs">
+          <div className="mr-4">
+            <span className="text-[#1C85E8] font-semibold">25 - </span>
+            <span className="text-[black] font-semibold">Holiday </span>
+          </div>
+          <div>
+            <span className="text-[#1C85E8] font-semibold">25 - </span>
+            <span className="text-[black] font-semibold">Holiday </span>
+          </div>
+        </div>
       </div>
       {showTRForm ? (
         <TimeRegistrationForm
