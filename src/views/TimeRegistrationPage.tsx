@@ -72,6 +72,7 @@ const TimeRegistraionPage: React.FC = () => {
                           key={index}
                           screen="mainScreen"
                           edit={() => console.log("edit from main page")}
+                          remove={() => console.log("remove from main page")}
                         />
                       );
                     })}

@@ -10,7 +10,7 @@ import TimeRegistrationForm, {
 } from "../AddTimeRegistration/AddTimeRegistration";
 
 export interface Event {
-  [date: string]: { name: string; color: string }[];
+  [date: string]: { id: string; name: string; color: string }[];
 }
 
 type EventProps = {
@@ -28,7 +28,7 @@ const EventCalendar: React.FC<EventProps> = ({
   const [showTRForm, setShowTRForm] = useState<boolean>(showFormBox);
   const [events, setEvents] = useState<Event>({});
   const [formData, setFormData] = useState<TimeRegistrationProps>({
-    date: [],
+    date: "",
     description: "",
     timeCode: "",
     time: 0,
@@ -42,28 +42,84 @@ const EventCalendar: React.FC<EventProps> = ({
   const [selectedDate, setSelectedDate] = useState<string>();
 
   const onAddNewTR = () => {
-    console.log(filteredData);
+    setFormData({
+      id: "",
+      date: "",
+      description: "",
+      timeCode: "",
+      time: 0,
+    });
     setShowTRForm(true);
+    setSelectedDates([]);
   };
 
   const editTimeRegistration = (data: TimeRegistrationProps) => {
-    console.log(data);
     setShowTRForm(true);
-
     setFormData(data);
+  };
+
+  const removeItem = (data: TimeRegistrationProps): void => {
+    const id = data.id || "";
+    const date = data.date;
+
+    setFilteredData((prevData) => {
+      const updatedList = prevData.filter((item) => item.id !== id);
+
+      return updatedList;
+    });
+
+    setTimeRegistrationList((prevData) => {
+      const updatedList = prevData.filter((item) => item.id !== id);
+
+      return updatedList;
+    });
+
+    removeEventCircles(id, date);
   };
 
   const handleFormData = (data: TimeRegistrationProps) => {
-    addEvent();
+    const dataList = [...timeRegistrationList];
+
+    if (data.id) {
+      setTimeRegistrationList((prevData) => {
+        const itemIndex = prevData.findIndex((item) => item.id === data.id);
+
+        if (itemIndex === -1) {
+          return prevData;
+        }
+
+        const updatedData = [...prevData];
+        updatedData[itemIndex] = data;
+
+        return updatedData;
+      });
+    } else {
+      selectedDates.forEach((date) => {
+        const updatedData = { ...data };
+
+        updatedData.id = generateUniqueId();
+        updatedData.date = date;
+        dataList.push(updatedData);
+        addEvent(date, updatedData.id);
+      });
+
+      setTimeRegistrationList(dataList);
+    }
+
+    //addEvent();
     setSelectedDates([]);
-    data.date = formData.date;
-
-    setTimeRegistrationList((prevData) => [...prevData, data]);
-
+    setFilteredData([]);
+    setShowTRForm(false);
     setFormData(data);
   };
 
-  const setDate = (newDate: string[]) => {
+  function generateUniqueId(): string {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 10000);
+    return `${timestamp}${random}`;
+  }
+
+  const setDate = (newDate: string) => {
     setFormData((prevData) => ({ ...prevData, date: newDate }));
   };
 
@@ -72,17 +128,15 @@ const EventCalendar: React.FC<EventProps> = ({
     if (from === "mainScreen") onCancel();
   };
 
-  const addEvent = () => {
-    selectedDates.forEach((date) => {
-      if (!events[date]) {
-        events[date] = [];
-      }
-      events[date].push({ name: "test", color: getRandomColor() });
-    });
+  const addEvent = (date: string, id: string) => {
+    if (!events[date]) {
+      events[date] = [];
+    }
+
+    events[date].push({ id: id, name: "test", color: getRandomColor() });
+
     setEvents({ ...events });
   };
-
-  const onSubmitTR = () => {};
 
   const handleDateClick = (date: Date) => {
     const formattedDate = date.toLocaleDateString();
@@ -94,13 +148,14 @@ const EventCalendar: React.FC<EventProps> = ({
       const totalSum = filteredItems.reduce((accumulator, currentItem) => {
         return accumulator + currentItem.time;
       }, 0);
+
       setFilteredData(filteredItems);
       setTotalWorkedHours(totalSum);
     }
 
     if (!selectedDates.includes(formattedDate) && showTRForm) {
       setSelectedDates([...selectedDates, formattedDate]);
-      setDate([...selectedDates, formattedDate]);
+      setDate(formattedDate);
     } else {
       setSelectedDates(selectedDates.filter((d) => d !== formattedDate));
     }
@@ -130,7 +185,19 @@ const EventCalendar: React.FC<EventProps> = ({
     );
   };
 
-  // Function to generate random colors for events
+  const removeEventCircles = (id: string, date: string) => {
+    if (!events[date]) {
+      events[date] = [];
+    }
+
+    const updatedEvents = {
+      ...events,
+      [date]: events[date].filter((item) => item.id !== id),
+    };
+
+    setEvents(updatedEvents);
+  };
+
   const getRandomColor = () => {
     const letters = "0123456789ABCDEF";
     let color = "#";
@@ -138,6 +205,16 @@ const EventCalendar: React.FC<EventProps> = ({
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+  };
+
+  const monthTotalHours = (): number => {
+    return timeRegistrationList.reduce((total, item) => total + item.time, 0);
+  };
+
+  const isDateInArray = (dateToCheck: string) => {
+    return timeRegistrationList.some(
+      (registration) => registration.date === dateToCheck
+    );
   };
 
   return (
@@ -174,8 +251,13 @@ const EventCalendar: React.FC<EventProps> = ({
         />
       ) : (
         <>
-          <TotalTime type="calendar" totalHours={totalWorkedHours} />
-          <div className="pr-4 pl-4 mb-8">
+          <TotalTime
+            type="calendar"
+            totalHours={
+              filteredData.length > 0 ? totalWorkedHours : monthTotalHours()
+            }
+          />
+          <div className="pr-4 pl-4 mb-6">
             {filteredData.map((item, index) => {
               return (
                 <TimeCodeItem
@@ -183,11 +265,20 @@ const EventCalendar: React.FC<EventProps> = ({
                   key={index}
                   screen="detailScreen"
                   edit={editTimeRegistration}
+                  remove={removeItem}
                 />
               );
             })}
           </div>
         </>
+      )}
+
+      {!showTRForm && filteredData.length === 0 ? (
+        <div className="ml-6 text-md font-semibold text-[#454548]">
+          No registrations
+        </div>
+      ) : (
+        <></>
       )}
 
       {!showTRForm ? (

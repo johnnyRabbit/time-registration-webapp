@@ -13,7 +13,8 @@ interface TimeRegistration {
 }
 
 export type TimeRegistrationProps = {
-  date: string[];
+  id?: string;
+  date: string;
   description: string;
   timeCode: string;
   time: number;
@@ -49,15 +50,16 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
   };
 
   const handleFormSubmit = () => {
-    const formData = {
+    /*  const formData = {
       date: timeData.date,
       description: timeData.description,
       timeCode: timeData.timeCode,
       time: timeData.time,
-    };
+      id: timeData.id || generateUniqueId(),
+    }; */
 
-    onSubmit(formData);
-    setTimeData({ date: [], description: "", timeCode: "", time: 0 });
+    onSubmit(timeData);
+    setTimeData({ date: "", description: "", timeCode: "", time: 0 });
   };
 
   return (
