@@ -8,6 +8,7 @@ import { TimeCodeItem } from "../ListProjects/ListOfProjects";
 import TimeRegistrationForm, {
   TimeRegistrationProps,
 } from "../AddTimeRegistration/AddTimeRegistration";
+import { useTimeRegistration } from "../../context/TimeRegistrationContext";
 
 export interface Event {
   [date: string]: { id: string; name: string; color: string }[];
@@ -40,6 +41,12 @@ const EventCalendar: React.FC<EventProps> = ({
   const [filteredData, setFilteredData] = useState<TimeRegistrationProps[]>([]);
   const [editItemTR, setEditItemTR] = useState<TimeRegistrationProps>();
   const [selectedDate, setSelectedDate] = useState<string>();
+  const {
+    timeRegistrations,
+    addTimeRegistration,
+    editTimeRegistratrion,
+    removeTimRegistration,
+  } = useTimeRegistration();
 
   const onAddNewTR = () => {
     setFormData({
