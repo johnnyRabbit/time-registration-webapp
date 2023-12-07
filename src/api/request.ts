@@ -13,7 +13,7 @@ const token =
 
 const urlParams = new URLSearchParams(window.location.search);
 
-const token1 = urlParams.get("token");
+const token1 = `Bearer ${urlParams.get("token")}`;
 const userId = urlParams.get("userId");
 const organizationId1 = urlParams.get("organizationId");
 
