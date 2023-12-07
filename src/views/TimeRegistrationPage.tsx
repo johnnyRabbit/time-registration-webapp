@@ -135,6 +135,10 @@ const TimeRegistraionPage: React.FC = () => {
       }
     };
 
+    const testFunction = () => {
+      alert("hellooooo");
+    };
+
     const fetchHolidays = async () => {
       try {
       } catch (error) {}
