@@ -72,15 +72,31 @@ const TimeRegistraionPage: React.FC = () => {
   } = useTimeRegistration();
 
   useEffect(() => {
-    const handleMessageFromRN = (event: MessageEvent) => {
-      console.log("Received message in WebView:", event.data);
-      // Handling the received message from React Native
+    const handleButtonClick = () => {
+      // Post a message when the button inside the WebView is clicked
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage("closeWebView"); // Or any message indicating the action
+      }
     };
 
-    window.addEventListener("message", handleMessageFromRN);
+    const addEventListener = () => {
+      const button = document.getElementById("yourButtonId");
+      if (button) {
+        button.addEventListener("click", handleButtonClick);
+      }
+    };
+
+    const removeEventListener = () => {
+      const button = document.getElementById("yourButtonId");
+      if (button) {
+        button.removeEventListener("click", handleButtonClick);
+      }
+    };
+
+    addEventListener(); // Add event listener when component mounts
 
     return () => {
-      window.removeEventListener("message", handleMessageFromRN);
+      removeEventListener(); // Clean up event listener when component unmounts
     };
   }, []);
 
@@ -282,9 +298,7 @@ const TimeRegistraionPage: React.FC = () => {
         <div className="calendar-container w-full flex flex-col items-center">
           <div className="calendar-view w-full flex flex-col ">
             {/* <SpecificMonthsCalendar allowedMonths={allowedMonths} />*/}
-            <button onClick={sendMessageToWebView}>
-              Send Message to WebView
-            </button>
+            <button id="yourButtonId">Close WebView</button>
 
             {dataFrameList && dataFrameList.length > 0 && (
               <EventCalendar
