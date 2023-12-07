@@ -37,6 +37,15 @@ export type DateLov = {
   value: string;
 };
 
+declare global {
+  interface Window {
+    ReactNativeWebView: {
+      postMessage: (message: string) => void;
+      // Add other properties or methods if needed
+    };
+  }
+}
+
 const TimeRegistraionPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [showFormBox, setshowFormBox] = useState<boolean>(false);
@@ -63,10 +72,32 @@ const TimeRegistraionPage: React.FC = () => {
     setHolidays,
   } = useTimeRegistration();
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
+  const yourFunctionName = () => {
+    // Your logic for the function inside the WebView
+    console.log("Function called within WebView");
+    // Perform actions as needed
+  };
 
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data === "invokeFunction") {
+        // Call the function in WebView
+        yourFunctionName(); // Replace 'yourFunctionName' with the actual function name
+
+        // Send a message back to React Native confirming the function invocation
+        window.ReactNativeWebView.postMessage("functionInvoked");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getLovsDropdown("TIMEFRAME", false, true);
@@ -133,10 +164,6 @@ const TimeRegistraionPage: React.FC = () => {
       } catch (error) {
         console.log("error", error);
       }
-    };
-
-    const testFunction = () => {
-      alert("hellooooo");
     };
 
     const fetchHolidays = async () => {
