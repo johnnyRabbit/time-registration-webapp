@@ -95,7 +95,7 @@ export const getDateLovs = async (
   }
 };
 
-export const getUserTimeCodes = async (organizationId: number) => {
+export const getUserTimeCodes = async () => {
   try {
     const response: AxiosResponse = await api.get(
       "api/TimeCodes/GetTimeCodesDropdown",

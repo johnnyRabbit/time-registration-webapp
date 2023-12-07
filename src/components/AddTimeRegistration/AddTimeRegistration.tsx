@@ -38,7 +38,7 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
   useEffect(() => {
     const fetchUserTimeCodes = async () => {
       try {
-        const data = await getUserTimeCodes(2, 35);
+        const data = await getUserTimeCodes();
         setTUserimeCode(data);
 
         if (timeSheetCodes) {
