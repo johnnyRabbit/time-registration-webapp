@@ -64,17 +64,15 @@ const TimeRegistraionPage: React.FC = () => {
   } = useTimeRegistration();
 
   useEffect(() => {
-    const handlePostMessage = () => {
-      console.log("Received postMessage in WebView");
-      // Handle the received message here
+    const handleMessageFromRN = (event: MessageEvent) => {
+      console.log("Received message in WebView:", event.data);
+      // Handling the received message from React Native
     };
 
-    // Listen for postMessage events
-    window.addEventListener("message", handlePostMessage);
+    window.addEventListener("message", handleMessageFromRN);
 
-    // Clean up the event listener when the component unmounts
     return () => {
-      window.removeEventListener("message", handlePostMessage);
+      window.removeEventListener("message", handleMessageFromRN);
     };
   }, []);
 
