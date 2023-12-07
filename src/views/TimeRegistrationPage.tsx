@@ -64,6 +64,27 @@ const TimeRegistraionPage: React.FC = () => {
   } = useTimeRegistration();
 
   useEffect(() => {
+    const handlePostMessage = () => {
+      console.log("Received postMessage in WebView");
+      // Handle the received message here
+    };
+
+    // Listen for postMessage events
+    window.addEventListener("message", handlePostMessage);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("message", handlePostMessage);
+    };
+  }, []);
+
+  // Function to trigger postMessage (for testing)
+  const sendMessageToWebView = () => {
+    // Sending a message to itself for testing
+    window.postMessage("Test message from WebView");
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getLovsDropdown("TIMEFRAME", false, true);
@@ -253,6 +274,10 @@ const TimeRegistraionPage: React.FC = () => {
         <div className="calendar-container w-full flex flex-col items-center">
           <div className="calendar-view w-full flex flex-col ">
             {/* <SpecificMonthsCalendar allowedMonths={allowedMonths} />*/}
+            <button onClick={sendMessageToWebView}>
+              Send Message to WebView
+            </button>
+
             {dataFrameList && dataFrameList.length > 0 && (
               <EventCalendar
                 view={showCalendar ? "calendar" : ""}
