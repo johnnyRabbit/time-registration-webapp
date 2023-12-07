@@ -80,7 +80,6 @@ const TimeRegistraionPage: React.FC = () => {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      alert(event.data);
       if (event.data === "invokeFunction") {
         // Call the function in WebView
         yourFunctionName(); // Replace 'yourFunctionName' with the actual function name
