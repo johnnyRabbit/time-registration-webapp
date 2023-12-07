@@ -14,10 +14,7 @@ declare global {
 function App() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      window["ReactNativeWebView"] &&
-        window["ReactNativeWebView"].postMessage(
-          JSON.stringify({ key: "value" })
-        );
+      window.postMessage(JSON.stringify({ key: "value" }));
 
       if (event.data === "callFunction") {
         // Call the function in WebView
