@@ -81,8 +81,9 @@ const TimeRegistraionPage: React.FC = () => {
   // Function to trigger postMessage (for testing)
   const sendMessageToWebView = () => {
     // Sending a message to itself for testing
-    alert(JSON.stringify(window));
-    window.ReactNativeWebView.postMessage("Test message from WebView");
+    alert(window);
+    console.log(window);
+    window.postMessage("Test message from WebView");
   };
 
   useEffect(() => {
