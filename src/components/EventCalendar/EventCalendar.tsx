@@ -186,7 +186,7 @@ const EventCalendar: React.FC<EventProps> = ({
   const handleFormData = async (data: TimeRegistrationFormProps) => {
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
-
+    console.log("nova", data);
     if (timeRegistrations) {
       hasTimeCode =
         timeRegistrations?.timeSheetCodes?.filter((item) => {
