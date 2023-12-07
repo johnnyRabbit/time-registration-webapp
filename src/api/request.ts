@@ -22,6 +22,7 @@ export const getLovsDropdown = async (
   onlyParents: boolean,
   onlyActives: boolean
 ) => {
+  alert(window.location.href);
   try {
     const response: AxiosResponse<MonthData[]> = await api.get(
       "api/Lovs/GetLovsDropdown",
