@@ -177,7 +177,7 @@ const EventCalendar: React.FC<EventProps> = ({
       const parts = date.split("/");
       if (parts.length === 3) {
         const [day, month, year] = parts;
-        const isoDate = `${year}-${month}-${day}`;
+        const isoDate = `${year}-${day}-${month}`;
         return new Date(isoDate);
       }
     }
@@ -478,6 +478,7 @@ const EventCalendar: React.FC<EventProps> = ({
         minDetail="month"
         maxDetail="month"
         locale="en"
+        calendarType="US"
         // navigationLabel={CustomNavigationLabel}
         showNeighboringMonth={false}
         className={view === "calendar" ? "show_calendar" : "hide_calendar"}
