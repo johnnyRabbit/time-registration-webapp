@@ -37,15 +37,6 @@ export type DateLov = {
   value: string;
 };
 
-declare global {
-  interface Window {
-    ReactNativeWebView: {
-      postMessage: (message: string) => void;
-      // Add other properties or methods if needed
-    };
-  }
-}
-
 const TimeRegistraionPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [showFormBox, setshowFormBox] = useState<boolean>(false);
@@ -72,20 +63,13 @@ const TimeRegistraionPage: React.FC = () => {
     setHolidays,
   } = useTimeRegistration();
 
-  const yourFunctionName = () => {
-    // Your logic for the function inside the WebView
-    alert("Function called within WebView");
-    // Perform actions as needed
-  };
-
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data === "invokeFunction") {
+      if (event.data === "callFunction") {
         // Call the function in WebView
-        yourFunctionName(); // Replace 'yourFunctionName' with the actual function name
-
+        alert("Function called within WebView"); // Replace 'yourFunctionName' with the actual function name
         // Send a message back to React Native confirming the function invocation
-        window.ReactNativeWebView.postMessage("functionInvoked");
+        window.ReactNativeWebView.postMessage("functionCalled");
       }
     };
 
