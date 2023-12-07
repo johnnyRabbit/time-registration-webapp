@@ -79,9 +79,7 @@ const TimeRegistraionPage: React.FC = () => {
   // Function to trigger postMessage (for testing)
   const sendMessageToWebView = () => {
     // Sending a message to itself for testing
-    alert(window);
-    console.log(window);
-    history.back();
+    window.history.back();
     window.postMessage("Test message from WebView");
   };
 
