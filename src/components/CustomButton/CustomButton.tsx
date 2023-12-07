@@ -5,7 +5,8 @@ interface ButtonProps {
   text: string;
   icon?: ReactNode;
   onClick: () => void;
-  style?: CSSProperties; // Style prop for custom styling
+  style?: CSSProperties;
+  disable?: boolean;
 }
 
 const CustomButton: React.FC<ButtonProps> = ({
@@ -14,11 +15,13 @@ const CustomButton: React.FC<ButtonProps> = ({
   icon,
   style,
   onClick,
+  disable,
 }) => {
   return (
     <button
-      className="h-14 items-center rounded-md flex felx-row content-center justify-center mb-1"
+      className="h-14 items-center rounded-md flex flex-row content-center justify-center mb-1"
       style={{ backgroundColor: color, ...style }}
+      disabled={disable}
       onClick={onClick}
     >
       {icon && <span className="button-icon mr-4  text-white">{icon}</span>}

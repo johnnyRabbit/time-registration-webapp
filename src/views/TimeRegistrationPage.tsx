@@ -1,58 +1,282 @@
 import { useEffect, useState } from "react";
 import { MonthYear } from "../components/MonthYear/MonthYear";
 import CustomButton from "../components/CustomButton/CustomButton";
-import { FaMapPin, FaPlus } from "react-icons/fa";
+import { FaThumbtack, FaPlus } from "react-icons/fa";
 import { TimeCodeItem } from "../components/ListProjects/ListOfProjects";
 import EventCalendar from "../components/EventCalendar/EventCalendar";
-import { TimeRegistrationProps } from "../components/AddTimeRegistration/AddTimeRegistration";
+import {
+  completeTimeSheets,
+  fowardUserPins,
+  getDateLovs,
+  getLovsDropdown,
+  getTimeFrameCalendars,
+  getTimeSheetRegistration,
+  pinnedUserTimeSheetCode,
+  removeUserTimeSheetCodes,
+} from "../api/request";
+import {
+  DataFrameDateProps,
+  HolidayProps,
+  TimeRegistration,
+  useTimeRegistration,
+} from "../context/TimeRegistrationContext";
+import SpecificMonthsCalendar from "../components/EventCalendar/SpecificMonthsCalendar";
+
+export type MonthData = {
+  id: number;
+  parentId?: null;
+  reference?: null;
+  translations?: any[];
+  value: string;
+};
+
+export type DateLov = {
+  endDate: string;
+  id: number;
+  startDate: string;
+  value: string;
+};
 
 const TimeRegistraionPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [showFormBox, setshowFormBox] = useState<boolean>(false);
   const [pathfrom, setPathFrom] = useState<string>();
-  const [hasRecords, setHasRecords] = useState<boolean>();
-  const [timeRegistrationList, setTimeRegistrationList] = useState<
-    TimeRegistrationProps[]
-  >([]);
+  const [hasRecords, setHasRecords] = useState<boolean>(true);
+
+  const {
+    timeRegistrations,
+    showCalendarView,
+    holidaysList,
+    dataFrameList,
+    currentFrameDate,
+    lastFrameDate,
+    firstFrameDate,
+    totalHours,
+    setMonthTotalHours,
+    setCalendarView,
+    listTimeRegistration,
+    setDates,
+    getCurrentFrameDate,
+    getFirstFrameDate,
+    getLastFrameDate,
+    setDateFrameList,
+    setHolidays,
+  } = useTimeRegistration();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
 
-    console.log("token", token);
+    const fetchData = async () => {
+      try {
+        const data = await getLovsDropdown(2, "TIMEFRAME", false, true);
+        const first = data[0];
+        const last = data[data.length - 1];
+
+        getFirstFrameDate({ id: first.id, date: first.value });
+        getLastFrameDate({ id: last.id, date: last.value });
+
+        const dataFrame: DataFrameDateProps[] = [];
+        data.forEach((item) => {
+          dataFrame.push({
+            id: item.id,
+            date: item.value,
+          });
+        });
+
+        const dataLovs = await getDateLovs(
+          "TIMEFRAME",
+          currentFrameDate?.date || new Date().toDateString(),
+          currentFrameDate?.date || new Date().toDateString(),
+          2
+        );
+
+        const userTimeRegistrationList: TimeRegistration =
+          await getTimeSheetRegistration(35, 2, dataLovs.id);
+        setDates(dataLovs.startDate, dataLovs.endDate);
+
+        getCurrentFrameDate({
+          id:
+            Object.keys(userTimeRegistrationList).length > 0
+              ? userTimeRegistrationList.timeFrameId
+              : lastFrameDate?.id || 0,
+          date:
+            Object.keys(userTimeRegistrationList).length > 0
+              ? userTimeRegistrationList.timeFrameLov.value
+              : lastFrameDate?.date || "",
+        });
+
+        console.log("current", currentFrameDate);
+
+        const totalHours =
+          Object.keys(userTimeRegistrationList).length > 0
+            ? userTimeRegistrationList?.timeSheetCodes.reduce(
+                (total, timeSheetCode) => {
+                  return (
+                    total +
+                    timeSheetCode.times.reduce(
+                      (codeTotal, time) => codeTotal + time.hours,
+                      0
+                    )
+                  );
+                },
+                0
+              )
+            : 0;
+
+        setMonthTotalHours(totalHours | 0);
+        listTimeRegistration(userTimeRegistrationList);
+
+        const response = await getTimeFrameCalendars(dataLovs.id, 2);
+        setHolidays(response);
+
+        setDateFrameList(dataFrame);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    const fetchHolidays = async () => {
+      try {
+      } catch (error) {}
+    };
+
+    fetchData();
+    fetchHolidays();
   }, []);
 
-  useEffect(() => {
-    console.log("load time registration");
-    setHasRecords(false);
-  }, []);
+  const findNextObjectById = (
+    list: DataFrameDateProps[],
+    targetId: number
+  ): DataFrameDateProps | undefined => {
+    const index = list.findIndex((obj) => obj.id === targetId);
+
+    if (index !== -1 && index < list.length - 1) {
+      return list[index + 1];
+    }
+
+    return undefined;
+  };
 
   const onShowCalendar = () => {
     setShowCalendar(true);
+    setCalendarView(true);
     setPathFrom("calendarScreen");
   };
 
   const onShowFormBox = () => {
     setshowFormBox(true);
     setShowCalendar(true);
+    setCalendarView(true);
     setPathFrom("mainScreen");
   };
 
-  const onShowPinned = () => {
-    setHasRecords(true);
+  const onShowPinned = async () => {
+    const nextTimeFrame: DataFrameDateProps | undefined = findNextObjectById(
+      dataFrameList || [],
+      currentFrameDate?.id || 0
+    );
+
+    if (nextTimeFrame) {
+      const params = {
+        timeSheetId: timeRegistrations?.id,
+        nextTimeFrameId: nextTimeFrame?.id, // 505,
+      };
+
+      const respones = await fowardUserPins(params);
+    } else {
+      alert("");
+    }
+  };
+
+  const onCompleteTimeSheet = async () => {
+    const data = {
+      complete: true,
+      id: timeRegistrations?.id,
+      organizationId: 2,
+      timeFrameId: timeRegistrations?.timeFrameId,
+      userId: 35,
+    };
+
+    await completeTimeSheets(data);
+
+    const dataRes = await getDateLovs(
+      "TIMEFRAME",
+      currentFrameDate?.date || new Date().toDateString(),
+      currentFrameDate?.date || new Date().toDateString(),
+      2
+    );
+
+    const userTimeRegistrationList = await getTimeSheetRegistration(
+      35,
+      2,
+      dataRes.id
+    );
+    listTimeRegistration(userTimeRegistrationList);
   };
 
   const onCancel = () => {
     setShowCalendar(false);
+    setCalendarView(false);
     setshowFormBox(false);
   };
 
+  const removeItem = async (id: number): Promise<void> => {
+    await removeUserTimeSheetCodes(id, true);
+
+    const data = await getDateLovs(
+      "TIMEFRAME",
+      currentFrameDate?.date || new Date().toDateString(),
+      currentFrameDate?.date || new Date().toDateString(),
+      2
+    );
+
+    const userTimeRegistrationList = await getTimeSheetRegistration(
+      35,
+      2,
+      data.id
+    );
+
+    listTimeRegistration(userTimeRegistrationList);
+
+    const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
+      (total, timeSheetCode) => {
+        return (
+          total +
+          timeSheetCode.times.reduce(
+            (codeTotal, time) => codeTotal + time.hours,
+            0
+          )
+        );
+      },
+      0
+    );
+
+    setMonthTotalHours(totalHours | 0);
+  };
+
+  const allowedMonths: Date[] = [
+    new Date(2023, 0), // January 2023
+    new Date(2023, 2), // March 2023
+    new Date(2023, 5), // June 2023
+  ];
+
   return (
     <div>
-      {!showCalendar ? <MonthYear /> : <></>}
       <div className="w-full min-h-max flex flex-row just">
         <div className="calendar-container w-full flex flex-col items-center">
           <div className="calendar-view w-full flex flex-col ">
+            {/* <SpecificMonthsCalendar allowedMonths={allowedMonths} />*/}
+            {dataFrameList && dataFrameList.length > 0 && (
+              <EventCalendar
+                view={showCalendar ? "calendar" : ""}
+                data={timeRegistrations}
+                holidays={holidaysList || []}
+                showFormBox={showFormBox}
+                onCancel={() => onCancel()}
+                from={pathfrom}
+              />
+            )}
             {!showCalendar ? (
               <>
                 <div className="w-full flex flex-col mt-4  mb-2 pr-4 pl-4">
@@ -65,14 +289,14 @@ const TimeRegistraionPage: React.FC = () => {
                 </div>
                 {hasRecords ? (
                   <div className="pr-4 pl-4">
-                    {timeRegistrationList.map((item, index) => {
+                    {timeRegistrations?.timeSheetCodes?.map((item, index) => {
                       return (
                         <TimeCodeItem
                           data={item}
-                          key={index}
+                          key={item.id}
                           screen="mainScreen"
                           edit={() => console.log("edit from main page")}
-                          remove={() => console.log("remove from main page")}
+                          remove={() => removeItem(item.id)}
                         />
                       );
                     })}
@@ -86,20 +310,25 @@ const TimeRegistraionPage: React.FC = () => {
                     <span className=" text-[#0B2E5F]  text-lg ">
                       Total Work Hours:
                     </span>
-                    <span className=" text-[#0B2E5F]  text-lg">0</span>
+                    <span className=" text-[#0B2E5F]  text-lg">
+                      {totalHours || 0}
+                    </span>
                   </div>
                   <div className="w-full flex flex-row font-semibold justify-between p-2  pr-4 pl-4  bg-white rounded-md">
                     <span className=" text-[#0B2E5F] text-lg">
                       Total Work Days:
                     </span>
-                    <span className=" text-[#0B2E5F] text-lg">0</span>
+                    <span className=" text-[#0B2E5F] text-lg">
+                      {totalHours ? (totalHours / 8).toFixed(1) : 0}
+                    </span>
                   </div>
                 </div>
                 <div className="calendar-btn-container flex flex-col w-full pl-4 pr-4">
                   <div className="flex w-full flex-col mb-3">
                     <CustomButton
                       color="green"
-                      text={"NEM TIME REGISTRATION"}
+                      disable={timeRegistrations?.complete}
+                      text={"NEW TIME REGISTRATION"}
                       icon={<FaPlus />}
                       style={styles.btnNewTR}
                       onClick={() => onShowFormBox()}
@@ -110,27 +339,28 @@ const TimeRegistraionPage: React.FC = () => {
                       text="IMPORT PINS"
                       color="blue"
                       style={styles.btnImportPins}
-                      icon={<FaMapPin />}
+                      icon={<FaThumbtack />}
                       onClick={() => onShowPinned()}
                     />
                   </div>
 
                   <div className={`flex w-full flex-col mb-3`}>
                     <CustomButton
+                      disable={timeRegistrations?.complete}
                       text="COMPLETE TIMESHEET"
                       color="blue"
-                      style={styles.btnButtonDisabled}
-                      onClick={() => alert("Button Clicked")}
+                      style={
+                        timeRegistrations?.complete
+                          ? styles.btnButtonDisabled
+                          : styles.btnImportPins
+                      }
+                      onClick={() => onCompleteTimeSheet()}
                     />
                   </div>
                 </div>
               </>
             ) : (
-              <EventCalendar
-                showFormBox={showFormBox}
-                onCancel={() => onCancel()}
-                from={pathfrom}
-              />
+              <></>
             )}
           </div>
         </div>

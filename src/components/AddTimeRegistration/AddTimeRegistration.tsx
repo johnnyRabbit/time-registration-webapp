@@ -1,65 +1,107 @@
-import React, { useState } from "react";
-import { Textarea } from "@material-tailwind/react";
-import CustomButton from "../CustomButton/CustomButton";
+import React, { useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
-import { Event } from "../EventCalendar/EventCalendar";
+import {
+  Event,
+  TimeRegistrationFormProps,
+} from "../EventCalendar/EventCalendar";
+import {
+  addUserTimeRegistration,
+  addUserTimeSheetCode,
+  getUserTimeCodes,
+} from "../../api/request";
+import {
+  TimeCodes,
+  TimeSheetCodes,
+  useTimeRegistration,
+} from "../../context/TimeRegistrationContext";
 
 interface TimeRegistration {
   onCancel: () => void;
-  onSubmit: (data: TimeRegistrationProps) => void; // Define the callback prop
+  onSubmit: (data: TimeRegistrationFormProps) => void; // Define the callback prop
   data: Event;
   showForm: boolean;
-  formData: TimeRegistrationProps;
+  formData: TimeRegistrationFormProps;
+  timeSheet: TimeSheetCodes[] | [];
 }
-
-export type TimeRegistrationProps = {
-  id?: string;
-  date: string;
-  description: string;
-  timeCode: string;
-  time: number;
-};
 
 const TimeRegistrationForm: React.FC<TimeRegistration> = ({
   onCancel,
   onSubmit,
   formData,
 }) => {
-  const [timeData, setTimeData] = useState<TimeRegistrationProps>(formData);
+  const [timeData, setTimeData] = useState<TimeRegistrationFormProps>(formData);
+  const [timeCode, setTUserimeCode] = useState<TimeCodes[]>();
+  const [date, setDate] = useState<Date>();
+  const { timeSheetCodes, selectedDates, timeRegistrations, currentFrameDate } =
+    useTimeRegistration();
+
+  useEffect(() => {
+    const fetchUserTimeCodes = async () => {
+      try {
+        const data = await getUserTimeCodes(2, 35);
+        setTUserimeCode(data);
+
+        if (timeSheetCodes) {
+          setTimeCode(timeSheetCodes?.timeCode.tsCode);
+          setTime(timeSheetCodes?.times[0]?.hours || 0);
+          setDescription(timeSheetCodes?.times[0]?.comments || "");
+        }
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    fetchUserTimeCodes();
+  }, []);
 
   const setDescription = (newDescription: string) => {
-    setTimeData((prevData) => ({ ...prevData, description: newDescription }));
+    setTimeData((prevData) => ({ ...prevData, comments: newDescription }));
   };
 
   const setTimeCode = (newTimeCode: string) => {
-    setTimeData((prevData) => ({ ...prevData, timeCode: newTimeCode }));
+    const timeCodeId: number =
+      timeCode?.filter((item) => item.tsCode === newTimeCode)[0].id ||
+      timeSheetCodes?.timeCode.id ||
+      0;
+
+    setTimeData((prevData) => ({
+      ...prevData,
+      timeCodeName: newTimeCode,
+      timeCodeId: timeCodeId,
+    }));
   };
 
   const setTime = (newTime: number) => {
     if (newTime >= 0 && newTime <= 16) {
-      setTimeData((prevData) => ({ ...prevData, time: newTime }));
+      setTimeData((prevData) => ({ ...prevData, hours: newTime }));
     }
   };
 
   const incrementTime = () => {
-    setTime(timeData.time + 0.5);
+    setTime(timeData.hours + 0.5);
   };
 
   const decrementTime = () => {
-    setTime(timeData.time - 0.5);
+    setTime(timeData.hours - 0.5);
   };
 
-  const handleFormSubmit = () => {
-    /*  const formData = {
-      date: timeData.date,
-      description: timeData.description,
-      timeCode: timeData.timeCode,
-      time: timeData.time,
-      id: timeData.id || generateUniqueId(),
-    }; */
+  const parseDate = (date: string) => {
+    if (date) {
+      const parts = date.split("/");
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        const isoDate = `${year}-${month}-${day}`;
+        return new Date(isoDate);
+      }
+    }
+  };
 
-    onSubmit(timeData);
-    setTimeData({ date: "", description: "", timeCode: "", time: 0 });
+  const handleFormSubmit = async () => {
+    if (timeRegistrations && selectedDates) {
+      timeData.id = timeSheetCodes?.times[0]?.id || 0;
+
+      onSubmit(timeData);
+    }
   };
 
   return (
@@ -73,14 +115,17 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
             color: "#454548",
             fontSize: "16px",
           }}
-          value={timeData.timeCode}
+          value={timeData.timeCodeName}
           onChange={(e) => setTimeCode(e.target.value)}
         >
           <option value={-1}>Select Timecode</option>
-          <option value="code1">Code 1</option>
-          <option value="code2">Code 2</option>
-          <option value="code3">Code 3</option>
-          <option value="code4">Code 4</option>
+          {timeCode?.map((item, index) => {
+            return (
+              <option key={item.id} value={item.tsCode}>
+                {item.tsCode}
+              </option>
+            );
+          })}
         </select>
       </div>
 
@@ -96,7 +141,7 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
             className="w-full px-4 py-2 text-gray-700 rounded text-center"
             type="number"
             placeholder="0"
-            value={timeData.time}
+            value={timeData.hours}
             onChange={(e) => setTime(Number(e.target.value))}
           />
           <button
@@ -113,7 +158,7 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
             id="message"
             rows={4}
             style={style.textAreaStyle}
-            value={timeData.description}
+            value={timeData.comments}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add comment.."
           ></textarea>
@@ -128,12 +173,21 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
         </button>
         <div className="w-4"></div>
         <button
+          disabled={
+            selectedDates?.length
+              ? selectedDates?.length === 0 &&
+                timeData.timeCodeId === -1 &&
+                timeData.hours === 0
+              : false
+          }
           className={`${
-            timeData.description === "" ||
-            timeData.timeCode === "" ||
-            timeData.time === 0
-              ? "bg-[#BCBCBC]"
-              : "bg-[#0B2E5F]"
+            selectedDates?.length
+              ? selectedDates?.length > 0 &&
+                timeData.timeCodeId !== -1 &&
+                timeData.hours !== 0
+                ? "bg-[#0B2E5F]"
+                : "bg-[#BCBCBC]"
+              : "bg-[#BCBCBC]"
           } font-semibold text-md flex-1 text-white px-4 py-2 rounded-sm`}
           onClick={handleFormSubmit}
         >

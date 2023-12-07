@@ -1,0 +1,39 @@
+/* SpecificMonthsCalendar.css */
+.custom-calendar-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-evenly;
+  margin-bottom: 20px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.custom-calendar {
+  display: flex;
+  align-items: center;
+}
+
+.custom-month-label {
+  margin: 0 10px; /* Add spacing around the month label */
+}
+
+.custom-navigation-button-right {
+  /* Style your custom navigation buttons */
+  padding: 8px 16px;
+  background-color: white;
+  color: black;
+  border: none;
+  height: 60px;
+  cursor: pointer;
+}
+
+.custom-navigation-button-left {
+  position: absolute;
+  left: 10;
+  padding: 8px 16px;
+  background-color: white;
+  color: black;
+  border: none;
+  height: 60px;
+  cursor: pointer;
+}

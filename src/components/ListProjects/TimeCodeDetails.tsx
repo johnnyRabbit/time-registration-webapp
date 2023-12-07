@@ -11,6 +11,7 @@ import {
   TimeRegistration,
   TimeSheetCodeProps,
   TimeSheetCodes,
+  Times,
   useTimeRegistration,
 } from "../../context/TimeRegistrationContext";
 import {
@@ -20,16 +21,18 @@ import {
 } from "../../api/request";
 
 type timeCodeProps = {
+  timeResgistration: TimeSheetCodes[] | undefined;
   data: TimeSheetCodes;
-  key?: number;
+  date?: string;
+  key: number;
+  totalTime: number;
   screen?: string;
   edit: (data: TimeSheetCodes) => void;
   remove: (data: TimeSheetCodes) => void;
 };
 
-export const TimeCodeItem: React.FC<timeCodeProps> = ({
+export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
   data,
-  key,
   screen,
   edit,
   remove,
@@ -37,28 +40,26 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [totalHours, setTotalHours] = useState<number>();
+  const [timesDetails, setTimeDetails] = useState<Times>();
   const { listTimeRegistration, currentFrameDate } = useTimeRegistration();
 
   useEffect(() => {
+    const dataDetails = data.times.flatMap((timeSheetCode) => timeSheetCode);
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         closeMenu();
       }
     };
 
-    const totalTime = data.times.reduce((accumulator, currentItem) => {
-      return accumulator + currentItem.hours;
-    }, 0);
-
-    setTotalHours(totalTime);
+    setTimeDetails(dataDetails[0]);
 
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [data]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -100,7 +101,7 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
       2,
       dataRes.id
     );
-
+    data.pinned = !data.pinned;
     listTimeRegistration(userTimeRegistrationList);
   };
 
@@ -122,10 +123,7 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
         message="Are you sure you want to delete this item?"
       />
 
-      <div
-        key={key}
-        className="project-title flex flex-row justify-between mb-2"
-      >
+      <div className="project-title flex flex-row justify-between mb-2">
         <div className="flex flex-row justify-start items-center">
           <span className=" text-[#1C85E8] font-semibold uppercase font-sans text-lg mr-6">
             {data.timeCode.tsCode}
@@ -162,7 +160,7 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
                   onClick={() => handleDelete(data)}
                 >
                   <FaTrash className="ml-4 mr-3" />
-                  Delete Code
+                  Delete Times
                 </button>
               </div>
             </div>
@@ -170,14 +168,18 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
         </div>
       </div>
       <div className="total-hours-days flex flex-row text-[#8F8F8F]   text-lg">
-        <span className="mr-6">Total Hours: {totalHours || 0}</span>
-        <span>Total Days: {totalHours ? (totalHours / 8).toFixed(1) : 0}</span>
+        <span className="mr-6">Total Hours: {data.totalTime || 0}</span>
+        <span>
+          Total Days: {data.totalTime ? (data.totalTime / 8).toFixed(1) : 0}
+        </span>
       </div>
       {screen !== "mainScreen" ? (
         <div className="flex pt-2 mt-2 flex-row items-center border-t-2">
-          <span className="text-[#0B2E5F] font-semibold mr-6">0 hours</span>
+          <span className="text-[#0B2E5F] font-semibold mr-6">
+            {timesDetails?.hours} hours
+          </span>
           <span>
-            <FaComment color="#1C85E8" />
+            {timesDetails?.comments ? <FaComment color="#1C85E8" /> : <></>}
           </span>
         </div>
       ) : (
