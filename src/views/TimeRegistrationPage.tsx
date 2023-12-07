@@ -37,6 +37,14 @@ export type DateLov = {
   value: string;
 };
 
+declare global {
+  interface Window {
+    ReactNativeWebView: {
+      postMessage: (data: string) => void;
+    };
+  }
+}
+
 const TimeRegistraionPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [showFormBox, setshowFormBox] = useState<boolean>(false);
@@ -79,6 +87,7 @@ const TimeRegistraionPage: React.FC = () => {
   // Function to trigger postMessage (for testing)
   const sendMessageToWebView = () => {
     // Sending a message to itself for testing
+    console.log(window.ReactNativeWebView);
     window.history.back();
     window.postMessage("Test message from WebView");
   };
