@@ -74,12 +74,13 @@ const TimeRegistraionPage: React.FC = () => {
 
   const yourFunctionName = () => {
     // Your logic for the function inside the WebView
-    console.log("Function called within WebView");
+    alert("Function called within WebView");
     // Perform actions as needed
   };
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      alert(event.data);
       if (event.data === "invokeFunction") {
         // Call the function in WebView
         yourFunctionName(); // Replace 'yourFunctionName' with the actual function name
