@@ -91,15 +91,10 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
     const dataRes = await getDateLovs(
       "TIMEFRAME",
       currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString(),
-      2
+      currentFrameDate?.date || new Date().toDateString()
     );
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(
-      35,
-      2,
-      dataRes.id
-    );
+    const userTimeRegistrationList = await getTimeSheetRegistration(dataRes.id);
 
     listTimeRegistration(userTimeRegistrationList);
   };

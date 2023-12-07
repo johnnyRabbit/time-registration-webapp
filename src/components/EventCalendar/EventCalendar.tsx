@@ -151,15 +151,10 @@ const EventCalendar: React.FC<EventProps> = ({
     const dataRes = await getDateLovs(
       "TIMEFRAME",
       currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString(),
-      2
+      currentFrameDate?.date || new Date().toDateString()
     );
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(
-      35,
-      2,
-      dataRes.id
-    );
+    const userTimeRegistrationList = await getTimeSheetRegistration(dataRes.id);
 
     const userTimerRegistration = calculateTotalTime(userTimeRegistrationList);
 
@@ -263,13 +258,10 @@ const EventCalendar: React.FC<EventProps> = ({
       const dataRes = await getDateLovs(
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
-        currentFrameDate?.date || new Date().toDateString(),
-        2
+        currentFrameDate?.date || new Date().toDateString()
       );
 
       const userTimeRegistrationList = await getTimeSheetRegistration(
-        35,
-        2,
         dataRes.id
       );
 
@@ -499,16 +491,13 @@ const EventCalendar: React.FC<EventProps> = ({
           const data = await getDateLovs(
             "TIMEFRAME",
             activeStartDate?.toDateString() || new Date().toDateString(),
-            activeStartDate?.toDateString() || new Date().toDateString(),
-            2
+            activeStartDate?.toDateString() || new Date().toDateString()
           );
 
           const userTimeRegistrationList = await getTimeSheetRegistration(
-            35,
-            2,
             data.id
           );
-          const response = await getTimeFrameCalendars(data.id, 2);
+          const response = await getTimeFrameCalendars(data.id);
 
           getCurrentFrameDate({
             id: data.id,

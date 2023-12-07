@@ -69,7 +69,7 @@ const TimeRegistraionPage: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const data = await getLovsDropdown(2, "TIMEFRAME", false, true);
+        const data = await getLovsDropdown("TIMEFRAME", false, true);
         const first = data[0];
         const last = data[data.length - 1];
 
@@ -87,12 +87,11 @@ const TimeRegistraionPage: React.FC = () => {
         const dataLovs = await getDateLovs(
           "TIMEFRAME",
           currentFrameDate?.date || new Date().toDateString(),
-          currentFrameDate?.date || new Date().toDateString(),
-          2
+          currentFrameDate?.date || new Date().toDateString()
         );
 
         const userTimeRegistrationList: TimeRegistration =
-          await getTimeSheetRegistration(35, 2, dataLovs.id);
+          await getTimeSheetRegistration(dataLovs.id);
         setDates(dataLovs.startDate, dataLovs.endDate);
 
         getCurrentFrameDate({
@@ -127,7 +126,7 @@ const TimeRegistraionPage: React.FC = () => {
         setMonthTotalHours(totalHours | 0);
         listTimeRegistration(userTimeRegistrationList);
 
-        const response = await getTimeFrameCalendars(dataLovs.id, 2);
+        const response = await getTimeFrameCalendars(dataLovs.id);
         setHolidays(response);
 
         setDateFrameList(dataFrame);
@@ -203,15 +202,10 @@ const TimeRegistraionPage: React.FC = () => {
     const dataRes = await getDateLovs(
       "TIMEFRAME",
       currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString(),
-      2
+      currentFrameDate?.date || new Date().toDateString()
     );
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(
-      35,
-      2,
-      dataRes.id
-    );
+    const userTimeRegistrationList = await getTimeSheetRegistration(dataRes.id);
     listTimeRegistration(userTimeRegistrationList);
   };
 
@@ -227,15 +221,10 @@ const TimeRegistraionPage: React.FC = () => {
     const data = await getDateLovs(
       "TIMEFRAME",
       currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString(),
-      2
+      currentFrameDate?.date || new Date().toDateString()
     );
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(
-      35,
-      2,
-      data.id
-    );
+    const userTimeRegistrationList = await getTimeSheetRegistration(data.id);
 
     listTimeRegistration(userTimeRegistrationList);
 

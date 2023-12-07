@@ -8,31 +8,26 @@ import {
   TimeSheetCodeProps,
 } from "../context/TimeRegistrationContext";
 
-const token =
-  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxpby5tYXJ0aW5zQGJsdWVwYW5kYS5wdCIsImp0aSI6IjdkZTI1Y2ZhLWU4ZmQtNGYzOC04NzFhLTg5ODIwN2FkYzY1YSIsImVtYWlsIjoiaGVsaW8ubWFydGluc0BibHVlcGFuZGEucHQiLCJ1aWQiOiIzNSIsImlzd2ViIjoiRmFsc2UiLCJvcmdzIjoiWzIsMywxOSw2LDcwXSIsIm9yZ2lkIjoiMiIsImNoaWxkb3JncyI6IlszLDE5LDQ5LDcwXSIsInVzZXJyb2xlcyI6IltcIkFETUlOXCIsXCJNQU5BR0VSXCIsXCJIUkFETUlOXCIsXCJDT01QQURNSU5cIixcIlRFQU1cIl0iLCJyb2xlcyI6WyJBRE1JTiIsIk1BTkFHRVIiLCJIUkFETUlOIiwiQ09NUEFETUlOIiwiVEVBTSJdLCJleHAiOjE3MDE4ODkwMjIsImlzcyI6IkthbWVsZW9uSWRlbnRpdHkiLCJhdWQiOiJLYW1lbGVvbklkZW50aXR5VXNlciJ9.1AVhgZAu1tYav1O7pFnq0ttiUCVmTIhq14jd2Qh_i2g";
+/*const token =
+  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxpby5tYXJ0aW5zQGJsdWVwYW5kYS5wdCIsImp0aSI6IjdkZTI1Y2ZhLWU4ZmQtNGYzOC04NzFhLTg5ODIwN2FkYzY1YSIsImVtYWlsIjoiaGVsaW8ubWFydGluc0BibHVlcGFuZGEucHQiLCJ1aWQiOiIzNSIsImlzd2ViIjoiRmFsc2UiLCJvcmdzIjoiWzIsMywxOSw2LDcwXSIsIm9yZ2lkIjoiMiIsImNoaWxkb3JncyI6IlszLDE5LDQ5LDcwXSIsInVzZXJyb2xlcyI6IltcIkFETUlOXCIsXCJNQU5BR0VSXCIsXCJIUkFETUlOXCIsXCJDT01QQURNSU5cIixcIlRFQU1cIl0iLCJyb2xlcyI6WyJBRE1JTiIsIk1BTkFHRVIiLCJIUkFETUlOIiwiQ09NUEFETUlOIiwiVEVBTSJdLCJleHAiOjE3MDE4ODkwMjIsImlzcyI6IkthbWVsZW9uSWRlbnRpdHkiLCJhdWQiOiJLYW1lbGVvbklkZW50aXR5VXNlciJ9.1AVhgZAu1tYav1O7pFnq0ttiUCVmTIhq14jd2Qh_i2g";?*/
 
 const urlParams = new URLSearchParams(window.location.search);
 
-const token1 = `Bearer ${urlParams.get("token")}`;
-const userId = urlParams.get("userId");
-const organizationId1 = urlParams.get("organizationId");
+const token = `Bearer ${urlParams.get("token")}`;
+const userId = 35; // urlParams.get("userId");
+const orgId = urlParams.get("organizationId");
 
 export const getLovsDropdown = async (
-  organizationId: number,
   typeName: string,
   onlyParents: boolean,
   onlyActives: boolean
 ) => {
-  alert("token " + token1);
-  alert("userId " + userId);
-  alert("organizationId1 " + organizationId1);
-
   try {
     const response: AxiosResponse<MonthData[]> = await api.get(
       "api/Lovs/GetLovsDropdown",
       {
         params: {
-          organizationId,
+          orgId,
           typeName,
           onlyParents,
           onlyActives,
@@ -50,17 +45,14 @@ export const getLovsDropdown = async (
   }
 };
 
-export const getTimeFrameCalendars = async (
-  timeFrameId: number,
-  organizationId: number
-) => {
+export const getTimeFrameCalendars = async (timeFrameId: number) => {
   try {
     const response: AxiosResponse = await api.get(
       "api/Calendars/GetTimeFrameCalendars",
       {
         params: {
           timeFrameId,
-          organizationId,
+          orgId,
         },
         headers: {
           Authorization: token,
@@ -78,8 +70,7 @@ export const getTimeFrameCalendars = async (
 export const getDateLovs = async (
   type: string,
   startDate: string,
-  endDate: string,
-  organizationId: number
+  endDate: string
 ) => {
   try {
     const response: AxiosResponse<DateLov> = await api.get(
@@ -89,7 +80,7 @@ export const getDateLovs = async (
           type,
           startDate,
           endDate,
-          organizationId,
+          orgId,
         },
         headers: {
           Authorization: token,
@@ -104,17 +95,14 @@ export const getDateLovs = async (
   }
 };
 
-export const getUserTimeCodes = async (
-  organizationId: number,
-  userId: number
-) => {
+export const getUserTimeCodes = async (organizationId: number) => {
   try {
     const response: AxiosResponse = await api.get(
       "api/TimeCodes/GetTimeCodesDropdown",
       {
         params: {
           userId,
-          organizationId,
+          orgId,
         },
         headers: {
           Authorization: token,
@@ -128,18 +116,14 @@ export const getUserTimeCodes = async (
   }
 };
 
-export const getTimeSheetRegistration = async (
-  userId: number,
-  organizationId: number,
-  timeFrameId: number
-) => {
+export const getTimeSheetRegistration = async (timeFrameId: number) => {
   try {
     const response: AxiosResponse<TimeRegistration> = await api.get(
       "api/TimeSheets/GetTimeSheetRegistration",
       {
         params: {
           userId,
-          organizationId,
+          orgId,
           timeFrameId,
         },
         headers: {
