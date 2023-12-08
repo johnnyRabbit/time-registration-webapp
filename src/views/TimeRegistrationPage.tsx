@@ -75,40 +75,36 @@ const TimeRegistraionPage: React.FC = () => {
 
   useEffect(() => {
     const handleButtonClick = (ele: any) => {
-      console.log("ele", ele);
-
       // Post a message when the button inside the WebView is clicked
       if (ele.currentTarget.getAttribute("datatype") === "calendarView") {
         setCalendarView(false);
         setShowCalendar(false);
         setshowFormBox(false);
       } else {
-        console.log("Exit");
-      }
-
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage("closeWebView"); // Or any message indicating the action
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage("closeWebView"); // Or any message indicating the action
+        }
       }
     };
 
     const addEventListener = () => {
-      const button = document.getElementById("yourButtonId");
+      const button = document.getElementById("backBtn");
       if (button) {
         button.addEventListener("click", handleButtonClick);
       }
     };
 
     const removeEventListener = () => {
-      const button = document.getElementById("yourButtonId");
+      const button = document.getElementById("backBtn");
       if (button) {
         button.removeEventListener("click", handleButtonClick);
       }
     };
 
-    addEventListener(); // Add event listener when component mounts
+    addEventListener();
 
     return () => {
-      removeEventListener(); // Clean up event listener when component unmounts
+      removeEventListener();
     };
   }, []);
 

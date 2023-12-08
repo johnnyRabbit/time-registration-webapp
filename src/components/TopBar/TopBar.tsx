@@ -10,7 +10,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, view }) => {
     <div className="bg-gray-800 text-white py-4 px-4 flex items-center justify-between fixed top-0 w-full z-10">
       <div
         className="flex items-center cursor-pointer"
-        id="yourButtonId"
+        id="backBtn"
         datatype={view}
       >
         {/* You can use an SVG or an icon library for the back arrow */}
