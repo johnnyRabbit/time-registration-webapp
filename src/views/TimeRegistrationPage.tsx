@@ -21,6 +21,7 @@ import {
   useTimeRegistration,
 } from "../context/TimeRegistrationContext";
 import SpecificMonthsCalendar from "../components/EventCalendar/SpecificMonthsCalendar";
+import TopBar from "../components/TopBar/TopBar";
 
 export type MonthData = {
   id: number;
@@ -60,6 +61,7 @@ const TimeRegistraionPage: React.FC = () => {
     lastFrameDate,
     firstFrameDate,
     totalHours,
+    setAppWebViewState,
     setMonthTotalHours,
     setCalendarView,
     listTimeRegistration,
@@ -72,8 +74,18 @@ const TimeRegistraionPage: React.FC = () => {
   } = useTimeRegistration();
 
   useEffect(() => {
-    const handleButtonClick = () => {
+    const handleButtonClick = (ele: any) => {
+      console.log("ele", ele);
+
       // Post a message when the button inside the WebView is clicked
+      if (ele.currentTarget.getAttribute("datatype") === "calendarView") {
+        setCalendarView(false);
+        setShowCalendar(false);
+        setshowFormBox(false);
+      } else {
+        console.log("Exit");
+      }
+
       if (window.ReactNativeWebView) {
         window.ReactNativeWebView.postMessage("closeWebView"); // Or any message indicating the action
       }
@@ -99,14 +111,6 @@ const TimeRegistraionPage: React.FC = () => {
       removeEventListener(); // Clean up event listener when component unmounts
     };
   }, []);
-
-  // Function to trigger postMessage (for testing)
-  const sendMessageToWebView = () => {
-    // Sending a message to itself for testing
-    console.log(window.ReactNativeWebView);
-    window.history.back();
-    window.postMessage("Test message from WebView");
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -255,6 +259,7 @@ const TimeRegistraionPage: React.FC = () => {
     setShowCalendar(false);
     setCalendarView(false);
     setshowFormBox(false);
+    setAppWebViewState("MainView");
   };
 
   const removeItem = async (id: number): Promise<void> => {
@@ -294,11 +299,15 @@ const TimeRegistraionPage: React.FC = () => {
 
   return (
     <div>
-      <div className="w-full min-h-max flex flex-row just">
+      <TopBar
+        title={"Time Registration"}
+        view={showCalendar ? "calendarView" : "mainView"}
+      />
+
+      <div className="w-full mt-14 min-h-max flex flex-row just">
         <div className="calendar-container w-full flex flex-col items-center">
           <div className="calendar-view w-full flex flex-col ">
             {/* <SpecificMonthsCalendar allowedMonths={allowedMonths} />*/}
-            <button id="yourButtonId">Close WebView</button>
 
             {dataFrameList && dataFrameList.length > 0 && (
               <EventCalendar

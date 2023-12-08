@@ -111,6 +111,7 @@ type TimeRegistrationContextType = {
   dataFrameList: DataFrameDateProps[] | undefined;
   holidaysList: HolidayProps[] | undefined;
   totalHours: number | undefined;
+  appState: string | undefined;
   setDateFrameList: (dataFrameList: DataFrameDateProps[]) => void;
   getFirstFrameDate: (dateFrame: DataFrameDateProps) => void;
   getLastFrameDate: (dateFrame: DataFrameDateProps) => void;
@@ -122,6 +123,7 @@ type TimeRegistrationContextType = {
   setCalendarView: (view: boolean) => void;
   setHolidays: (holidays: HolidayProps[]) => void;
   setMonthTotalHours: (hours: number) => void;
+  setAppWebViewState: (state: string) => void;
 };
 
 const TimeRegistrationContext = createContext<
@@ -162,6 +164,7 @@ export function TimeRegistrationProvider({
   const [dataFrameList, setDateList] = useState<DataFrameDateProps[]>();
   const [holidaysList, setHolidaysList] = useState<HolidayProps[]>();
   const [totalHours, setTotalHours] = useState<number>();
+  const [appState, setAppState] = useState<string>();
 
   const editTimeRegistratrion = (timeSheetCodes: TimeSheetCodes) => {
     setTimeSheetCodes(timeSheetCodes);
@@ -206,6 +209,10 @@ export function TimeRegistrationProvider({
     setTotalHours(hours);
   };
 
+  const setAppWebViewState = (state: string) => {
+    setAppState(state);
+  };
+
   return (
     <TimeRegistrationContext.Provider
       value={{
@@ -223,6 +230,8 @@ export function TimeRegistrationProvider({
         dataFrameList,
         holidaysList,
         totalHours,
+        appState,
+        setAppWebViewState,
         setMonthTotalHours,
         setHolidays,
         setDateFrameList,
