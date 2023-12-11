@@ -24,7 +24,7 @@ import {
   getTimeSheetRegistration,
   removeUserTimes,
 } from "../../api/request";
-import { format, parse } from "date-fns";
+import { format, isValid, parse } from "date-fns";
 
 export interface Event {
   [date: string]: { id: number; name: string; color: string }[];
@@ -173,21 +173,25 @@ const EventCalendar: React.FC<EventProps> = ({
     setFilteredData(filteredTimeRegistration);
   };
 
-  const parseDate = (date: string) => {
-    const parsedDate = parse(date, "dd/MM/yyyy", new Date());
+  const parseDate = (dateString: string): Date | null => {
+    let parsedDate: Date | null = null;
 
-    const formattedDate = format(parsedDate, "dd/MM/yyyy"); // You can adjust the format string as needed
+    const formatsToTry: string[] = ["MM/dd/yyyy", "yyyy/MM/dd", "yyyy/dd/MM"];
 
-    alert(formattedDate);
-    if (date) {
-      const parts = date.split("/");
-      if (parts.length === 3) {
-        const [day, month, year] = parts;
-        const isoDate = `${year}-${day}-${month}`;
-        return new Date(isoDate);
+    for (const format of formatsToTry) {
+      parsedDate = parse(dateString, format, new Date());
+
+      if (isValid(parsedDate)) {
+        break;
       }
     }
+
+    if (!isValid(parsedDate)) {
+      parsedDate = null;
+    }
+    return parsedDate;
   };
+
   const handleFormData = async (data: TimeRegistrationFormProps) => {
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
