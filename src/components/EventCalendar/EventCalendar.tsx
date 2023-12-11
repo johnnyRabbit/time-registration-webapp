@@ -173,6 +173,7 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const parseDate = (date: string) => {
+    alert(date);
     if (date) {
       const parts = date.split("/");
       if (parts.length === 3) {

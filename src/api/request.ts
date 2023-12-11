@@ -8,13 +8,10 @@ import {
   TimeSheetCodeProps,
 } from "../context/TimeRegistrationContext";
 
-/*const token =
-  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxpby5tYXJ0aW5zQGJsdWVwYW5kYS5wdCIsImp0aSI6IjdkZTI1Y2ZhLWU4ZmQtNGYzOC04NzFhLTg5ODIwN2FkYzY1YSIsImVtYWlsIjoiaGVsaW8ubWFydGluc0BibHVlcGFuZGEucHQiLCJ1aWQiOiIzNSIsImlzd2ViIjoiRmFsc2UiLCJvcmdzIjoiWzIsMywxOSw2LDcwXSIsIm9yZ2lkIjoiMiIsImNoaWxkb3JncyI6IlszLDE5LDQ5LDcwXSIsInVzZXJyb2xlcyI6IltcIkFETUlOXCIsXCJNQU5BR0VSXCIsXCJIUkFETUlOXCIsXCJDT01QQURNSU5cIixcIlRFQU1cIl0iLCJyb2xlcyI6WyJBRE1JTiIsIk1BTkFHRVIiLCJIUkFETUlOIiwiQ09NUEFETUlOIiwiVEVBTSJdLCJleHAiOjE3MDE4ODkwMjIsImlzcyI6IkthbWVsZW9uSWRlbnRpdHkiLCJhdWQiOiJLYW1lbGVvbklkZW50aXR5VXNlciJ9.1AVhgZAu1tYav1O7pFnq0ttiUCVmTIhq14jd2Qh_i2g";?*/
-
 const urlParams = new URLSearchParams(window.location.search);
 
 const token = `Bearer ${urlParams.get("token")}`;
-const userId = 35; // urlParams.get("userId");
+const userId = urlParams.get("userId");
 const organizationId = urlParams.get("organizationId");
 
 export const getLovsDropdown = async (
