@@ -188,8 +188,6 @@ const EventCalendar: React.FC<EventProps> = ({
       }
     }
   };
-  parse;
-
   const handleFormData = async (data: TimeRegistrationFormProps) => {
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
