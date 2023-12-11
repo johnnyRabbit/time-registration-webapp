@@ -24,6 +24,7 @@ import {
   getTimeSheetRegistration,
   removeUserTimes,
 } from "../../api/request";
+import { format, parse } from "date-fns";
 
 export interface Event {
   [date: string]: { id: number; name: string; color: string }[];
@@ -173,7 +174,11 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const parseDate = (date: string) => {
-    alert(date);
+    const parsedDate = parse(date, "dd/MM/yyyy", new Date());
+
+    const formattedDate = format(parsedDate, "dd/MM/yyyy"); // You can adjust the format string as needed
+
+    alert(formattedDate);
     if (date) {
       const parts = date.split("/");
       if (parts.length === 3) {
@@ -183,6 +188,7 @@ const EventCalendar: React.FC<EventProps> = ({
       }
     }
   };
+  parse;
 
   const handleFormData = async (data: TimeRegistrationFormProps) => {
     let timeSheetCodeId = 0;
