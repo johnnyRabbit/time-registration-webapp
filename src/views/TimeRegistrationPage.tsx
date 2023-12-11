@@ -46,6 +46,10 @@ declare global {
   }
 }
 
+const urlParams = new URLSearchParams(window.location.search);
+const organizationId = urlParams.get("organizationId");
+const userId = urlParams.get("userId");
+
 const TimeRegistraionPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [showFormBox, setshowFormBox] = useState<boolean>(false);
@@ -234,9 +238,9 @@ const TimeRegistraionPage: React.FC = () => {
     const data = {
       complete: true,
       id: timeRegistrations?.id,
-      organizationId: 2,
+      organizationId: organizationId || 2,
       timeFrameId: timeRegistrations?.timeFrameId,
-      userId: 35,
+      userId: userId || 35,
     };
 
     await completeTimeSheets(data);
@@ -300,7 +304,7 @@ const TimeRegistraionPage: React.FC = () => {
         view={showCalendar ? "calendarView" : "mainView"}
       />
 
-      <div className="w-full mt-14 min-h-max flex flex-row just">
+      <div className="w-full mt-16 min-h-max flex flex-row justify-end border-b-indigo-500">
         <div className="calendar-container w-full flex flex-col items-center">
           <div className="calendar-view w-full flex flex-col ">
             {/* <SpecificMonthsCalendar allowedMonths={allowedMonths} />*/}
@@ -368,7 +372,11 @@ const TimeRegistraionPage: React.FC = () => {
                       disable={timeRegistrations?.complete}
                       text={"NEW TIME REGISTRATION"}
                       icon={<FaPlus />}
-                      style={styles.btnNewTR}
+                      style={
+                        timeRegistrations?.complete
+                          ? styles.btnButtonDisabled
+                          : styles.btnNewTR
+                      }
                       onClick={() => onShowFormBox()}
                     />
                   </div>

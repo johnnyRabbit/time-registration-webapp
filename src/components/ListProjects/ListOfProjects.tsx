@@ -38,7 +38,8 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [totalHours, setTotalHours] = useState<number>();
-  const { listTimeRegistration, currentFrameDate } = useTimeRegistration();
+  const { timeRegistrations, listTimeRegistration, currentFrameDate } =
+    useTimeRegistration();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -61,7 +62,7 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
   }, []);
 
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+    if (!timeRegistrations?.complete) setMenuOpen(!menuOpen);
   };
 
   const closeMenu = () => {
@@ -122,7 +123,7 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
         className="project-title flex flex-row justify-between mb-2"
       >
         <div className="flex flex-row justify-start items-center">
-          <span className=" text-[#1C85E8] font-semibold uppercase font-sans text-lg mr-6">
+          <span className=" text-[#1C85E8] font-semibold uppercase font-sans text-base   mr-6">
             {data.timeCode.tsCode}
           </span>
           {data.pinned ? <FaThumbtack color="#E5C911" /> : <></>}
@@ -164,7 +165,7 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
           )}
         </div>
       </div>
-      <div className="total-hours-days flex flex-row text-[#8F8F8F]   text-lg">
+      <div className="total-hours-days flex flex-row text-[#8F8F8F]   text-base ">
         <span className="mr-6">Total Hours: {totalHours || 0}</span>
         <span>Total Days: {totalHours ? (totalHours / 8).toFixed(1) : 0}</span>
       </div>

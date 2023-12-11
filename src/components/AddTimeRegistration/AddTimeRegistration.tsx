@@ -166,7 +166,7 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
       </div>
       <div className="w-full  flex justify-between mt-8 h-14">
         <button
-          className="border border-[#0B2E5F] flex-1 text-[#0B2E5F] font-semibold text-md bo px-8 py-2 rounded-sm"
+          className="border border-[#0B2E5F] flex-1 text-[#0B2E5F] font-semibold text-base bo px-8 py-2 rounded-sm"
           onClick={() => onCancel()}
         >
           Cancel
@@ -188,7 +188,7 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
                 ? "bg-[#0B2E5F]"
                 : "bg-[#BCBCBC]"
               : "bg-[#BCBCBC]"
-          } font-semibold text-md flex-1 text-white px-4 py-2 rounded-sm`}
+          } font-semibold text-base flex-1 text-white px-4 py-2 rounded-sm`}
           onClick={handleFormSubmit}
         >
           Save

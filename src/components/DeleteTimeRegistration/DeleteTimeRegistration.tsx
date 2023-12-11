@@ -18,13 +18,13 @@ const DeleteTimRegistration: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto">
+    <div className="fixed top-0 inset-0 z-50 flex items-center justify-center overflow-auto">
       <div
         className="absolute inset-0 bg-gray-900 opacity-50"
         onClick={onClose}
       ></div>
       <div className="flex flex-col justify-around z-50 bg-white text-center p-2 rounded-lg shadow-lg w-96 h-64">
-        <h2 className="text-md flex-2 text-[#ABABAB] ">{title}</h2>
+        <h2 className="text-base flex-2 text-[#ABABAB] ">{title}</h2>
         <p className="text-[#0B2E5F] flex-3 font-semibold text-xl ">
           {message}
         </p>

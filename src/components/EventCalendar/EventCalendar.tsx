@@ -471,12 +471,11 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col mt-1">
       <Calendar
         //   value={selecteedDate}
         defaultView="month"
         minDetail="month"
-        maxDetail="month"
         locale="en"
         calendarType="US"
         // navigationLabel={CustomNavigationLabel}
@@ -618,15 +617,17 @@ const EventCalendar: React.FC<EventProps> = ({
         </>
       )}
 
-      {!showTRForm && filteredData?.timeSheetCodes?.length === 0 ? (
-        <div className="ml-6 text-md font-semibold text-[#454548]">
+      {!showTRForm &&
+      filteredData?.timeSheetCodes?.length === 0 &&
+      showCalendarView ? (
+        <div className="ml-6 text-base font-semibold text-[#454548]">
           No registrations
         </div>
       ) : (
         <></>
       )}
 
-      {!showTRForm && showCalendarView ? (
+      {!showTRForm && showCalendarView && !timeRegistrations?.complete ? (
         <div className=" fixed bottom-6 right-3">
           <button
             className="fixed bottom-4 right-4 w-16 h-16 bg-blue-500 text-white rounded-full flex items-center justify-center"

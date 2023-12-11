@@ -77,11 +77,20 @@
 .react-calendar__navigation__label__labelText,
 .react-calendar__navigation__label__labelText--from {
   color: black;
-  font-size: 1.5rem;
+  font-size: 20px;
   line-height: 2rem;
   font-weight: 600;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
     "Lucida Sans", Arial, sans-serif;
+}
+
+.react-calendar__tile .react-calendar__month-view__days__day {
+  font-weight: 400 !important;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  font-weight: bolder;
+  color: black !important;
 }
 
 .react-calendar button {
@@ -89,7 +98,7 @@
   border: 0;
   outline: none;
   font-size: 16px;
-  font-weight: 600;
+
   color: black;
 }
 

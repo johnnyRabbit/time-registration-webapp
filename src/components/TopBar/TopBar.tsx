@@ -7,7 +7,7 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ title, view }) => {
   return (
-    <div className="bg-gray-800 text-white py-4 px-4 flex items-center justify-between fixed top-0 w-full z-10">
+    <div className="bg-[#FFFFFF] text-[#3A3A3A] py-4 px-4 flex items-center justify-between fixed top-0 w-full z-10">
       <div
         className="flex items-center cursor-pointer"
         id="backBtn"
