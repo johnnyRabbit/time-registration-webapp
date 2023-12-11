@@ -13,9 +13,9 @@ import {
 
 const urlParams = new URLSearchParams(window.location.search);
 
-const token = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxpby5tYXJ0aW5zQGJsdWVwYW5kYS5wdCIsImp0aSI6ImEzM2NlYTUyLWEyMGYtNDJjMS05Zjg5LWQ5YTFkNDQ5ZTQ4YSIsImVtYWlsIjoiaGVsaW8ubWFydGluc0BibHVlcGFuZGEucHQiLCJ1aWQiOiIzNSIsImlzd2ViIjoiRmFsc2UiLCJvcmdzIjoiWzIsMywxOSw2LDcwXSIsIm9yZ2lkIjoiMiIsImNoaWxkb3JncyI6IlszLDE5LDQ5LDcwXSIsInVzZXJyb2xlcyI6IltcIkFETUlOXCIsXCJNQU5BR0VSXCIsXCJIUkFETUlOXCIsXCJDT01QQURNSU5cIixcIlRFQU1cIl0iLCJyb2xlcyI6WyJBRE1JTiIsIk1BTkFHRVIiLCJIUkFETUlOIiwiQ09NUEFETUlOIiwiVEVBTSJdLCJleHAiOjE3MDIyNTA2NjUsImlzcyI6IkthbWVsZW9uSWRlbnRpdHkiLCJhdWQiOiJLYW1lbGVvbklkZW50aXR5VXNlciJ9.ZgzaAVe4DNSdNkDn7YEJzGkiSEFZ24vgdu9KhKhq7OQ`;
+const token = `Bearer ${urlParams.get("token")}`;
 const userId = 35; // urlParams.get("userId");
-const organizationId = 2; // urlParams.get("organizationId");
+const organizationId = urlParams.get("organizationId");
 
 export const getLovsDropdown = async (
   typeName: string,
