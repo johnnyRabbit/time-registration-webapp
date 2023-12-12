@@ -100,6 +100,10 @@ const EventCalendar: React.FC<EventProps> = ({
   } = useTimeRegistration();
 
   useEffect(() => {
+    console.log("timeRegistrations", timeRegistrations, events);
+    setEvents({});
+    console.log("timeRegistrations", timeRegistrations, events);
+
     const event = (timeRegistrations || data)?.timeSheetCodes?.flatMap(
       (timeSheetCode) => timeSheetCode.times
     );
@@ -195,7 +199,7 @@ const EventCalendar: React.FC<EventProps> = ({
   const handleFormData = async (data: TimeRegistrationFormProps) => {
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
-    console.log("nova", data);
+
     if (timeRegistrations) {
       hasTimeCode =
         timeRegistrations?.timeSheetCodes?.filter((item) => {
@@ -528,10 +532,11 @@ const EventCalendar: React.FC<EventProps> = ({
             );
 
             setMonthTotalHours(totalHours | 0);
-            listTimeRegistration(userTimeRegistrationList);
+            //  listTimeRegistration(userTimeRegistrationList);
           } else {
             setMonthTotalHours(0);
           }
+          setEvents({});
 
           setHolidays(response || []);
           listTimeRegistration(userTimeRegistrationList);
