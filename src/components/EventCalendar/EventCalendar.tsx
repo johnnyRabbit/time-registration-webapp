@@ -100,10 +100,6 @@ const EventCalendar: React.FC<EventProps> = ({
   } = useTimeRegistration();
 
   useEffect(() => {
-    console.log("timeRegistrations", timeRegistrations, events);
-    setEvents({});
-    console.log("timeRegistrations", timeRegistrations, events);
-
     const event = (timeRegistrations || data)?.timeSheetCodes?.flatMap(
       (timeSheetCode) => timeSheetCode.times
     );
@@ -151,6 +147,7 @@ const EventCalendar: React.FC<EventProps> = ({
 
   const removeItem = async (data: TimeSheetCodes): Promise<void> => {
     await removeUserTimes(data.times[0].id);
+    setEvents({});
 
     const date = data.times[0].date;
     const dataRes = await getDateLovs(
@@ -536,8 +533,6 @@ const EventCalendar: React.FC<EventProps> = ({
           } else {
             setMonthTotalHours(0);
           }
-          setEvents({});
-
           setHolidays(response || []);
           listTimeRegistration(userTimeRegistrationList);
         }}
