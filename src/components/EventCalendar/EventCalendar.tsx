@@ -273,6 +273,8 @@ const EventCalendar: React.FC<EventProps> = ({
           });
         });
 
+        alert(parseDate(selectedDates[0])?.toISOString());
+
         await addUserTimeRegistration(listOfTimes);
       }
 
