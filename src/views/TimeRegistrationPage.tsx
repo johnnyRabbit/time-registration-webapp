@@ -55,6 +55,7 @@ const TimeRegistraionPage: React.FC = () => {
   const [showFormBox, setshowFormBox] = useState<boolean>(false);
   const [pathfrom, setPathFrom] = useState<string>();
   const [hasRecords, setHasRecords] = useState<boolean>(true);
+  const [allowedMonths, setAllowedMonths] = useState<Date[]>();
 
   const {
     timeRegistrations,
@@ -79,7 +80,6 @@ const TimeRegistraionPage: React.FC = () => {
 
   useEffect(() => {
     const handleButtonClick = (ele: any) => {
-      // Post a message when the button inside the WebView is clicked
       if (ele.currentTarget.getAttribute("datatype") === "calendarView") {
         setCalendarView(false);
         setShowCalendar(false);
@@ -123,12 +123,18 @@ const TimeRegistraionPage: React.FC = () => {
         getLastFrameDate({ id: last.id, date: last.value });
 
         const dataFrame: DataFrameDateProps[] = [];
+        const allowedMonthsList: Date[] = [];
+
         data.forEach((item) => {
           dataFrame.push({
             id: item.id,
             date: item.value,
           });
+
+          allowedMonthsList.push(new Date(item.value));
         });
+
+        setAllowedMonths(allowedMonthsList);
 
         const dataLovs = await getDateLovs(
           "TIMEFRAME",
@@ -138,6 +144,7 @@ const TimeRegistraionPage: React.FC = () => {
 
         const userTimeRegistrationList: TimeRegistration =
           await getTimeSheetRegistration(dataLovs.id);
+
         setDates(dataLovs.startDate, dataLovs.endDate);
 
         getCurrentFrameDate({
@@ -236,7 +243,7 @@ const TimeRegistraionPage: React.FC = () => {
 
   const onCompleteTimeSheet = async () => {
     const data = {
-      complete: true,
+      complete: false,
       id: timeRegistrations?.id,
       organizationId: organizationId || 2,
       timeFrameId: timeRegistrations?.timeFrameId,
@@ -291,11 +298,11 @@ const TimeRegistraionPage: React.FC = () => {
     setMonthTotalHours(totalHours | 0);
   };
 
-  const allowedMonths: Date[] = [
+  /* const allowedMonths: Date[] = [
     new Date(2023, 0), // January 2023
     new Date(2023, 2), // March 2023
     new Date(2023, 5), // June 2023
-  ];
+  ]; */
 
   return (
     <div>
@@ -309,16 +316,20 @@ const TimeRegistraionPage: React.FC = () => {
           <div className="calendar-view w-full flex flex-col ">
             {/* <SpecificMonthsCalendar allowedMonths={allowedMonths} />*/}
 
-            {dataFrameList && dataFrameList.length > 0 && (
-              <EventCalendar
-                view={showCalendar ? "calendar" : ""}
-                data={timeRegistrations}
-                holidays={holidaysList || []}
-                showFormBox={showFormBox}
-                onCancel={() => onCancel()}
-                from={pathfrom}
-              />
-            )}
+            {dataFrameList &&
+              dataFrameList.length > 0 &&
+              allowedMonths &&
+              allowedMonths.length > 0 && (
+                <EventCalendar
+                  view={showCalendar ? "calendar" : ""}
+                  data={timeRegistrations}
+                  holidays={holidaysList || []}
+                  showFormBox={showFormBox}
+                  onCancel={() => onCancel()}
+                  from={pathfrom}
+                  allowedMonths={allowedMonths || []}
+                />
+              )}
             {!showCalendar ? (
               <>
                 <div className="w-full flex flex-col mt-4  mb-2 pr-4 pl-4">
