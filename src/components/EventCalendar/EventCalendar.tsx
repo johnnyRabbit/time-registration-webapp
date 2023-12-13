@@ -180,7 +180,6 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const parseDate = (dateString: string): Date | null => {
-    alert(dateString);
     let parsedDate: Date | null = null;
 
     const formatsToTry: string[] = [
@@ -201,6 +200,9 @@ const EventCalendar: React.FC<EventProps> = ({
     if (!isValid(parsedDate)) {
       parsedDate = null;
     }
+
+    alert(parsedDate);
+
     return parsedDate;
   };
 
