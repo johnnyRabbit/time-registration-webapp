@@ -180,6 +180,7 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const parseDate = (dateString: string): Date | null => {
+    alert(dateString);
     let parsedDate: Date | null = null;
 
     const formatsToTry: string[] = [
