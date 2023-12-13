@@ -201,8 +201,6 @@ const EventCalendar: React.FC<EventProps> = ({
       parsedDate = null;
     }
 
-    alert(parsedDate);
-
     return parsedDate;
   };
 
@@ -263,7 +261,7 @@ const EventCalendar: React.FC<EventProps> = ({
         selectedDates.forEach((item) => {
           listOfTimes.push({
             id: data.id,
-            date: parseDate(item)?.toJSON(),
+            date: parseDate(item)?.toISOString(),
             hours: data.hours,
             projBillable: false,
             tsBillable: false,
@@ -274,8 +272,6 @@ const EventCalendar: React.FC<EventProps> = ({
             comments: data.comments,
           });
         });
-
-        alert(parseDate(selectedDates[0])?.toJSON());
 
         await addUserTimeRegistration(listOfTimes);
       }
