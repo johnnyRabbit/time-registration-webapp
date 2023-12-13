@@ -86,7 +86,6 @@ const EventCalendar: React.FC<EventProps> = ({
     allowedMonths.length - 1
   );
 
-  const [filteredData, setFilteredData] = useState<TimeRegistration>();
   const [selectedDate, setSelectedDate] = useState<string>();
   const {
     timeRegistrations,
@@ -95,6 +94,8 @@ const EventCalendar: React.FC<EventProps> = ({
     endDate,
     dataFrameList,
     currentFrameDate,
+    filteredData,
+    setFilteredData,
     setHolidays,
     setMonthTotalHours,
     listTimeRegistration,
@@ -503,10 +504,12 @@ const EventCalendar: React.FC<EventProps> = ({
     <div className="w-full flex flex-col mt-1">
       <Calendar
         //   value={allowedMonths[currentMonthIndex]}
+        value={new Date()}
         defaultView="month"
         minDetail="month"
         locale="en"
-        calendarType="gregory"
+        //defaultValue
+        //  calendarType="gregory"
         // navigationLabel={CustomNavigationLabel}
         showNeighboringMonth={false}
         className={view === "calendar" ? "show_calendar" : "hide_calendar"}
@@ -514,6 +517,7 @@ const EventCalendar: React.FC<EventProps> = ({
         nextLabel={<FaChevronRight />}
         prevLabel={<FaChevronLeft />}
         onClickDay={handleDateClick}
+        selectRange={false}
         // tileDisabled={tileDisabled}
         onActiveStartDateChange={async ({ activeStartDate }) => {
           const data = await getDateLovs(

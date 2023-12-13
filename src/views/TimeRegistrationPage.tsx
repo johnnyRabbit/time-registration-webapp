@@ -66,6 +66,7 @@ const TimeRegistraionPage: React.FC = () => {
     lastFrameDate,
     firstFrameDate,
     totalHours,
+    setFilteredData,
     setAppWebViewState,
     setMonthTotalHours,
     setCalendarView,
@@ -81,6 +82,28 @@ const TimeRegistraionPage: React.FC = () => {
   useEffect(() => {
     const handleButtonClick = (ele: any) => {
       if (ele.currentTarget.getAttribute("datatype") === "calendarView") {
+        let elementSelectedActive =
+          document.getElementsByClassName("selected_active");
+        let elementSelected = document.getElementsByClassName("selected");
+
+        if (elementSelectedActive.length > 0)
+          elementSelectedActive[0].classList.remove("selected_active");
+        if (elementSelected.length > 0)
+          elementSelected[0].classList.remove("selected");
+        setFilteredData({
+          complete: false,
+          id: 0,
+          organizationId: 0,
+          timeFrameId: 0,
+          timeFrameLov: {
+            id: 0,
+            value: "",
+            startDate: "",
+            endDate: "",
+          },
+          timeSheetCodes: [],
+          userId: 0,
+        });
         setCalendarView(false);
         setShowCalendar(false);
         setshowFormBox(false);
@@ -243,7 +266,7 @@ const TimeRegistraionPage: React.FC = () => {
 
   const onCompleteTimeSheet = async () => {
     const data = {
-      complete: false,
+      complete: true,
       id: timeRegistrations?.id,
       organizationId: organizationId || 2,
       timeFrameId: timeRegistrations?.timeFrameId,

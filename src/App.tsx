@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import "./App.css";
 import { TimeRegistrationProvider } from "./context/TimeRegistrationContext";
 import TimeRegistraionPage from "./views/TimeRegistrationPage";
-import TopBar from "./components/TopBar/TopBar";
 
 function App() {
   return (

@@ -101,6 +101,7 @@ type TimeRegistrationContextType = {
   urlParams: UrlProps | undefined;
   token: string | undefined;
   timeRegistrations: TimeRegistration | undefined;
+  filteredData: TimeRegistration | undefined;
   timeSheetCodes: TimeSheetCodes | undefined;
   startDate: string | undefined;
   endDate: string | undefined;
@@ -124,6 +125,7 @@ type TimeRegistrationContextType = {
   setHolidays: (holidays: HolidayProps[]) => void;
   setMonthTotalHours: (hours: number) => void;
   setAppWebViewState: (state: string) => void;
+  setFilteredData: (registration: TimeRegistration) => void;
 };
 
 const TimeRegistrationContext = createContext<
@@ -165,6 +167,12 @@ export function TimeRegistrationProvider({
   const [holidaysList, setHolidaysList] = useState<HolidayProps[]>();
   const [totalHours, setTotalHours] = useState<number>();
   const [appState, setAppState] = useState<string>();
+  const [filteredData, setFilteredTimeRegistration] =
+    useState<TimeRegistration>();
+
+  const setFilteredData = (registration: TimeRegistration) => {
+    setFilteredTimeRegistration(registration);
+  };
 
   const editTimeRegistratrion = (timeSheetCodes: TimeSheetCodes) => {
     setTimeSheetCodes(timeSheetCodes);
@@ -231,6 +239,8 @@ export function TimeRegistrationProvider({
         holidaysList,
         totalHours,
         appState,
+        filteredData,
+        setFilteredData,
         setAppWebViewState,
         setMonthTotalHours,
         setHolidays,
