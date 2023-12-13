@@ -272,6 +272,8 @@ const EventCalendar: React.FC<EventProps> = ({
           });
         });
 
+        alert(parseDate(selectedDates[0])?.toJSON());
+
         await addUserTimeRegistration(listOfTimes);
       }
 
@@ -502,7 +504,7 @@ const EventCalendar: React.FC<EventProps> = ({
         defaultView="month"
         minDetail="month"
         locale="en"
-        calendarType="US"
+        calendarType="gregory"
         // navigationLabel={CustomNavigationLabel}
         showNeighboringMonth={false}
         className={view === "calendar" ? "show_calendar" : "hide_calendar"}
