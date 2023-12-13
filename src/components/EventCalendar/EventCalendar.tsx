@@ -258,7 +258,7 @@ const EventCalendar: React.FC<EventProps> = ({
         await editUserTimes(userTimeRegistrationDetails);
       } else {
         alert(parseDate(selectedDates[0])?.toISOString());
-        alert(parseDate(selectedDates[0]));
+        console.log(parseDate(selectedDates[0]));
         const listOfTimes: any[] = [];
         selectedDates.forEach((item) => {
           listOfTimes.push({
@@ -274,6 +274,10 @@ const EventCalendar: React.FC<EventProps> = ({
             comments: data.comments,
           });
         });
+
+        const parsedDate = parseDate(selectedDates[0]) || new Date();
+        const formattedDate = format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss.SSS");
+        alert(formattedDate);
 
         await addUserTimeRegistration(listOfTimes);
       }
