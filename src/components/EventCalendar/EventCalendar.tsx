@@ -50,6 +50,7 @@ type EventProps = {
   holidays: HolidayProps[];
   data: TimeRegistration | undefined;
   view: string;
+  allowedMonths: Date[];
 };
 
 const EventCalendar: React.FC<EventProps> = ({
@@ -59,6 +60,7 @@ const EventCalendar: React.FC<EventProps> = ({
   holidays,
   data,
   view,
+  allowedMonths,
 }) => {
   const [selecteedDate, setSelecteedDate] = useState<Date>(new Date());
 
@@ -80,6 +82,9 @@ const EventCalendar: React.FC<EventProps> = ({
   const [totalWorkedHours, setTotalWorkedHours] = useState<number>(0);
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [navigationData, setNavigationData] = useState<string[]>([]);
+  const [currentMonthIndex, setCurrentMonthIndex] = useState<number>(
+    allowedMonths.length - 1
+  );
 
   const [filteredData, setFilteredData] = useState<TimeRegistration>();
   const [selectedDate, setSelectedDate] = useState<string>();
@@ -177,7 +182,12 @@ const EventCalendar: React.FC<EventProps> = ({
   const parseDate = (dateString: string): Date | null => {
     let parsedDate: Date | null = null;
 
-    const formatsToTry: string[] = ["MM/dd/yyyy", "yyyy/MM/dd", "yyyy/dd/MM"];
+    const formatsToTry: string[] = [
+      "dd/MM/yyyy",
+      "MM/dd/yyyy",
+      "yyyy/MM/dd",
+      "yyyy/dd/MM",
+    ];
 
     for (const format of formatsToTry) {
       parsedDate = parse(dateString, format, new Date());
@@ -360,6 +370,7 @@ const EventCalendar: React.FC<EventProps> = ({
   const handleDateClick = (date: Date) => {
     const formattedDate = date.toLocaleDateString();
     const id = timeSheetCodes?.id || 0;
+    console.log("parsed date", parseDate(formattedDate));
 
     if (timeRegistrations) {
       const userTimerRegistration = calculateTotalTime(timeRegistrations);
@@ -448,24 +459,6 @@ const EventCalendar: React.FC<EventProps> = ({
     }
   };
 
-  const allowedMonths: Date[] = [
-    new Date(2023, 0), // January 2023
-    new Date(2023, 2), // March 2023
-    new Date(2023, 5), // June 2023
-  ];
-
-  const customTileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view === "month") {
-      const isAllowed = allowedMonths.some(
-        (allowedDate) =>
-          allowedDate.getFullYear() === date.getFullYear() &&
-          allowedDate.getMonth() === date.getMonth()
-      );
-      return isAllowed ? null : <></>; // Hide non-allowed months
-    }
-    return null;
-  };
-
   const monthTotalHours = (): number => {
     return timeRegistrations
       ? timeRegistrations?.timeSheetCodes?.reduce((total, timeSheetCode) => {
@@ -480,10 +473,32 @@ const EventCalendar: React.FC<EventProps> = ({
       : 0;
   };
 
+  const handlePreviousMonth = () => {
+    setCurrentMonthIndex((prevIndex) =>
+      prevIndex > 0 ? prevIndex - 1 : prevIndex
+    );
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonthIndex((prevIndex) =>
+      prevIndex < allowedMonths.length - 1 ? prevIndex + 1 : prevIndex
+    );
+  };
+
+  const handleCustomNext = () => {
+    // Custom function for next button functionality
+    handleNextMonth(); // Call your specific logic here
+  };
+
+  const handleCustomPrevious = () => {
+    // Custom function for previous button functionality
+    handlePreviousMonth(); // Call your specific logic her
+  };
+
   return (
     <div className="w-full flex flex-col mt-1">
       <Calendar
-        //   value={selecteedDate}
+        //   value={allowedMonths[currentMonthIndex]}
         defaultView="month"
         minDetail="month"
         locale="en"
@@ -497,7 +512,6 @@ const EventCalendar: React.FC<EventProps> = ({
         onClickDay={handleDateClick}
         // tileDisabled={tileDisabled}
         onActiveStartDateChange={async ({ activeStartDate }) => {
-          console.log("active", activeStartDate);
           const data = await getDateLovs(
             "TIMEFRAME",
             activeStartDate?.toDateString() || new Date().toDateString(),
@@ -538,23 +552,23 @@ const EventCalendar: React.FC<EventProps> = ({
         }}
         tileClassName={({ date }) => {
           let classNames = "";
+          const formattedDate = date.toLocaleDateString();
 
           holidays.forEach((item) => {
-            if (
-              new Date(item.date).toLocaleDateString() ===
-              date.toLocaleDateString()
-            ) {
+            if (new Date(item.date).toLocaleDateString() === formattedDate) {
               classNames += " static-day-class";
             } else {
               classNames += ``;
             }
           });
 
-          if (selectedDates.includes(date.toLocaleDateString())) {
+          if (selectedDates.includes(formattedDate) && showTRForm) {
             classNames += " selected";
+          } else {
+            classNames += "";
           }
 
-          if (selectedDate === date.toLocaleDateString()) {
+          if (selectedDate === formattedDate && !showTRForm) {
             classNames += " selected_active";
           } else {
             classNames += "";
