@@ -1,5 +1,6 @@
 // TimeRegistrationContext.tsx
 import { createContext, useContext, useState, ReactNode } from "react";
+import { Event } from "../components/EventCalendar/EventCalendar";
 
 export type TimeRegistration = {
   complete: boolean;
@@ -97,6 +98,7 @@ export type DataFrameDateProps = {
 };
 
 type TimeRegistrationContextType = {
+  events: Event | undefined;
   isLoading: boolean | undefined;
   selectedDates: string[] | undefined;
   urlParams: UrlProps | undefined;
@@ -128,6 +130,7 @@ type TimeRegistrationContextType = {
   setAppWebViewState: (state: string) => void;
   setFilteredData: (registration: TimeRegistration) => void;
   setIsLoadingData: (loading: boolean) => void;
+  setMonthEvents: (event: Event) => void;
 };
 
 const TimeRegistrationContext = createContext<
@@ -173,6 +176,11 @@ export function TimeRegistrationProvider({
     useState<TimeRegistration>();
 
   const [isLoading, setIsLoading] = useState<boolean>();
+  const [events, setEvents] = useState<Event>({});
+
+  const setMonthEvents = (event: Event) => {
+    setEvents(event);
+  };
 
   const setIsLoadingData = (loading: boolean) => {
     setIsLoading(loading);
@@ -249,6 +257,8 @@ export function TimeRegistrationProvider({
         appState,
         filteredData,
         isLoading,
+        events,
+        setMonthEvents,
         setIsLoadingData,
         setFilteredData,
         setAppWebViewState,

@@ -68,6 +68,7 @@ const TimeRegistraionPage: React.FC = () => {
     firstFrameDate,
     totalHours,
     isLoading,
+    setMonthEvents,
     setIsLoadingData,
     setFilteredData,
     setAppWebViewState,
@@ -313,7 +314,7 @@ const TimeRegistraionPage: React.FC = () => {
 
     try {
       await removeUserTimeSheetCodes(id, true);
-
+      setMonthEvents({});
       const data = await getDateLovs(
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
@@ -321,8 +322,6 @@ const TimeRegistraionPage: React.FC = () => {
       );
 
       const userTimeRegistrationList = await getTimeSheetRegistration(data.id);
-
-      listTimeRegistration(userTimeRegistrationList);
 
       const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
         (total, timeSheetCode) => {
@@ -336,8 +335,8 @@ const TimeRegistraionPage: React.FC = () => {
         },
         0
       );
-
       setMonthTotalHours(totalHours | 0);
+      listTimeRegistration(userTimeRegistrationList);
     } catch (error) {
     } finally {
       setIsLoadingData(false);

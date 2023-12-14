@@ -66,7 +66,7 @@ const EventCalendar: React.FC<EventProps> = ({
 
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [showTRForm, setShowTRForm] = useState<boolean>(showFormBox);
-  const [events, setEvents] = useState<Event>({});
+  //const [events, setEvents] = useState<Event>({});
   const [formData, setFormData] = useState<TimeRegistrationFormProps>({
     id: 0,
     timeCodeId: 0,
@@ -96,6 +96,8 @@ const EventCalendar: React.FC<EventProps> = ({
     currentFrameDate,
     filteredData,
     isLoading,
+    events,
+    setMonthEvents,
     setIsLoadingData,
     setFilteredData,
     setHolidays,
@@ -158,7 +160,7 @@ const EventCalendar: React.FC<EventProps> = ({
 
     try {
       await removeUserTimes(data.times[0].id);
-      setEvents({});
+      setMonthEvents({});
 
       const date = data.times[0].date;
       const dataRes = await getDateLovs(
@@ -406,12 +408,14 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const addEvent = (date: string, id: number) => {
-    if (!events[date]) {
-      events[date] = [];
-    }
+    if (events) {
+      if (!events[date]) {
+        events[date] = [];
+      }
 
-    events[date].push({ id: id, name: "test", color: getRandomColor() });
-    setEvents({ ...events });
+      events[date].push({ id: id, name: "test", color: getRandomColor() });
+      setMonthEvents({ ...events });
+    }
   };
 
   const calculateTotalTime = (
@@ -591,8 +595,6 @@ const EventCalendar: React.FC<EventProps> = ({
               activeStartDate?.toDateString() || new Date().toDateString()
             );
 
-            console.log("data", data);
-
             const userTimeRegistrationList = await getTimeSheetRegistration(
               data.id
             );
@@ -618,7 +620,6 @@ const EventCalendar: React.FC<EventProps> = ({
               );
 
               setMonthTotalHours(totalHours | 0);
-              //  listTimeRegistration(userTimeRegistrationList);
             } else {
               setMonthTotalHours(0);
             }
@@ -684,7 +685,7 @@ const EventCalendar: React.FC<EventProps> = ({
       {showTRForm && showCalendarView ? (
         <TimeRegistrationForm
           showForm={showTRForm}
-          data={events}
+          data={events || {}}
           onCancel={() => cancelTR()}
           onSubmit={handleFormData}
           formData={formData}
