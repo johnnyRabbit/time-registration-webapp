@@ -139,8 +139,8 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
           </button>
           <input
             className="w-full px-4 py-2 text-gray-700 rounded text-center"
-            type="number"
-            placeholder="0"
+            type="text"
+            // placeholder="0"
             value={timeData.hours}
             onChange={(e) => setTime(Number(e.target.value))}
           />
