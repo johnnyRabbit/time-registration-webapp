@@ -22,6 +22,7 @@ import {
 } from "../context/TimeRegistrationContext";
 import SpecificMonthsCalendar from "../components/EventCalendar/SpecificMonthsCalendar";
 import TopBar from "../components/TopBar/TopBar";
+import LoadingSpinner from "../components/Loading/LoadingSpinner";
 
 export type MonthData = {
   id: number;
@@ -66,6 +67,8 @@ const TimeRegistraionPage: React.FC = () => {
     lastFrameDate,
     firstFrameDate,
     totalHours,
+    isLoading,
+    setIsLoadingData,
     setFilteredData,
     setAppWebViewState,
     setMonthTotalHours,
@@ -90,6 +93,7 @@ const TimeRegistraionPage: React.FC = () => {
           elementSelectedActive[0].classList.remove("selected_active");
         if (elementSelected.length > 0)
           elementSelected[0].classList.remove("selected");
+
         setFilteredData({
           complete: false,
           id: 0,
@@ -104,6 +108,7 @@ const TimeRegistraionPage: React.FC = () => {
           timeSheetCodes: [],
           userId: 0,
         });
+
         setCalendarView(false);
         setShowCalendar(false);
         setshowFormBox(false);
@@ -138,6 +143,7 @@ const TimeRegistraionPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoadingData(true);
         const data = await getLovsDropdown("TIMEFRAME", false, true);
         const first = data[0];
         const last = data[data.length - 1];
@@ -181,8 +187,6 @@ const TimeRegistraionPage: React.FC = () => {
               : lastFrameDate?.date || "",
         });
 
-        console.log("current", currentFrameDate);
-
         const totalHours =
           Object.keys(userTimeRegistrationList).length > 0
             ? userTimeRegistrationList?.timeSheetCodes.reduce(
@@ -208,16 +212,12 @@ const TimeRegistraionPage: React.FC = () => {
         setDateFrameList(dataFrame);
       } catch (error) {
         console.log("error", error);
+      } finally {
+        setIsLoadingData(false);
       }
     };
 
-    const fetchHolidays = async () => {
-      try {
-      } catch (error) {}
-    };
-
     fetchData();
-    fetchHolidays();
   }, []);
 
   const findNextObjectById = (
@@ -247,6 +247,8 @@ const TimeRegistraionPage: React.FC = () => {
   };
 
   const onShowPinned = async () => {
+    setIsLoadingData(true);
+
     const nextTimeFrame: DataFrameDateProps | undefined = findNextObjectById(
       dataFrameList || [],
       currentFrameDate?.id || 0
@@ -258,13 +260,19 @@ const TimeRegistraionPage: React.FC = () => {
         nextTimeFrameId: nextTimeFrame?.id, // 505,
       };
 
-      const respones = await fowardUserPins(params);
-    } else {
-      alert("");
+      try {
+        const respones = await fowardUserPins(params);
+      } catch (error) {
+        console.log("error", error);
+      } finally {
+        setIsLoadingData(false);
+      }
     }
   };
 
   const onCompleteTimeSheet = async () => {
+    setIsLoadingData(true);
+
     const data = {
       complete: true,
       id: timeRegistrations?.id,
@@ -273,16 +281,24 @@ const TimeRegistraionPage: React.FC = () => {
       userId: userId || 35,
     };
 
-    await completeTimeSheets(data);
+    try {
+      await completeTimeSheets(data);
 
-    const dataRes = await getDateLovs(
-      "TIMEFRAME",
-      currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString()
-    );
+      const dataRes = await getDateLovs(
+        "TIMEFRAME",
+        currentFrameDate?.date || new Date().toDateString(),
+        currentFrameDate?.date || new Date().toDateString()
+      );
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(dataRes.id);
-    listTimeRegistration(userTimeRegistrationList);
+      const userTimeRegistrationList = await getTimeSheetRegistration(
+        dataRes.id
+      );
+      listTimeRegistration(userTimeRegistrationList);
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      setIsLoadingData(false);
+    }
   };
 
   const onCancel = () => {
@@ -293,39 +309,40 @@ const TimeRegistraionPage: React.FC = () => {
   };
 
   const removeItem = async (id: number): Promise<void> => {
-    await removeUserTimeSheetCodes(id, true);
+    setIsLoadingData(true);
 
-    const data = await getDateLovs(
-      "TIMEFRAME",
-      currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString()
-    );
+    try {
+      await removeUserTimeSheetCodes(id, true);
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(data.id);
+      const data = await getDateLovs(
+        "TIMEFRAME",
+        currentFrameDate?.date || new Date().toDateString(),
+        currentFrameDate?.date || new Date().toDateString()
+      );
 
-    listTimeRegistration(userTimeRegistrationList);
+      const userTimeRegistrationList = await getTimeSheetRegistration(data.id);
 
-    const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
-      (total, timeSheetCode) => {
-        return (
-          total +
-          timeSheetCode.times.reduce(
-            (codeTotal, time) => codeTotal + time.hours,
-            0
-          )
-        );
-      },
-      0
-    );
+      listTimeRegistration(userTimeRegistrationList);
 
-    setMonthTotalHours(totalHours | 0);
+      const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
+        (total, timeSheetCode) => {
+          return (
+            total +
+            timeSheetCode.times.reduce(
+              (codeTotal, time) => codeTotal + time.hours,
+              0
+            )
+          );
+        },
+        0
+      );
+
+      setMonthTotalHours(totalHours | 0);
+    } catch (error) {
+    } finally {
+      setIsLoadingData(false);
+    }
   };
-
-  /* const allowedMonths: Date[] = [
-    new Date(2023, 0), // January 2023
-    new Date(2023, 2), // March 2023
-    new Date(2023, 5), // June 2023
-  ]; */
 
   return (
     <div>
@@ -333,6 +350,8 @@ const TimeRegistraionPage: React.FC = () => {
         title={"Time Registration"}
         view={showCalendar ? "calendarView" : "mainView"}
       />
+
+      {isLoading && <LoadingSpinner />}
 
       <div className="w-full mt-16 min-h-max flex flex-row justify-end border-b-indigo-500">
         <div className="calendar-container w-full flex flex-col items-center">
@@ -387,7 +406,7 @@ const TimeRegistraionPage: React.FC = () => {
                       Total Work Hours:
                     </span>
                     <span className=" text-[#0B2E5F]  text-lg">
-                      {totalHours || 0}
+                      {totalHours?.toFixed(1) || 0}
                     </span>
                   </div>
                   <div className="w-full flex flex-row font-semibold justify-between p-2  pr-4 pl-4  bg-white rounded-md">

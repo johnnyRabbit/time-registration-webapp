@@ -97,6 +97,7 @@ export type DataFrameDateProps = {
 };
 
 type TimeRegistrationContextType = {
+  isLoading: boolean | undefined;
   selectedDates: string[] | undefined;
   urlParams: UrlProps | undefined;
   token: string | undefined;
@@ -126,6 +127,7 @@ type TimeRegistrationContextType = {
   setMonthTotalHours: (hours: number) => void;
   setAppWebViewState: (state: string) => void;
   setFilteredData: (registration: TimeRegistration) => void;
+  setIsLoadingData: (loading: boolean) => void;
 };
 
 const TimeRegistrationContext = createContext<
@@ -169,6 +171,12 @@ export function TimeRegistrationProvider({
   const [appState, setAppState] = useState<string>();
   const [filteredData, setFilteredTimeRegistration] =
     useState<TimeRegistration>();
+
+  const [isLoading, setIsLoading] = useState<boolean>();
+
+  const setIsLoadingData = (loading: boolean) => {
+    setIsLoading(loading);
+  };
 
   const setFilteredData = (registration: TimeRegistration) => {
     setFilteredTimeRegistration(registration);
@@ -240,6 +248,8 @@ export function TimeRegistrationProvider({
         totalHours,
         appState,
         filteredData,
+        isLoading,
+        setIsLoadingData,
         setFilteredData,
         setAppWebViewState,
         setMonthTotalHours,

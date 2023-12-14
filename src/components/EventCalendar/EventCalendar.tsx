@@ -95,6 +95,8 @@ const EventCalendar: React.FC<EventProps> = ({
     dataFrameList,
     currentFrameDate,
     filteredData,
+    isLoading,
+    setIsLoadingData,
     setFilteredData,
     setHolidays,
     setMonthTotalHours,
@@ -152,32 +154,60 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const removeItem = async (data: TimeSheetCodes): Promise<void> => {
-    await removeUserTimes(data.times[0].id);
-    setEvents({});
+    setIsLoadingData(true);
 
-    const date = data.times[0].date;
-    const dataRes = await getDateLovs(
-      "TIMEFRAME",
-      currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString()
-    );
+    try {
+      await removeUserTimes(data.times[0].id);
+      setEvents({});
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(dataRes.id);
+      const date = data.times[0].date;
+      const dataRes = await getDateLovs(
+        "TIMEFRAME",
+        currentFrameDate?.date || new Date().toDateString(),
+        currentFrameDate?.date || new Date().toDateString()
+      );
 
-    const userTimerRegistration = calculateTotalTime(userTimeRegistrationList);
+      const userTimeRegistrationList = await getTimeSheetRegistration(
+        dataRes.id
+      );
 
-    const filteredTimeRegistration: TimeRegistration = {
-      ...userTimerRegistration,
-      timeSheetCodes: userTimerRegistration.timeSheetCodes
-        .map((timeSheetCode) => ({
-          ...timeSheetCode,
-          times: timeSheetCode.times.filter((time) => time.date === date),
-        }))
-        .filter((item) => item.times.length > 0),
-    };
+      const userTimerRegistration = calculateTotalTime(
+        userTimeRegistrationList
+      );
 
-    listTimeRegistration(userTimeRegistrationList);
-    setFilteredData(filteredTimeRegistration);
+      const filteredTimeRegistration: TimeRegistration = {
+        ...userTimerRegistration,
+        timeSheetCodes: userTimerRegistration.timeSheetCodes
+          .map((timeSheetCode) => ({
+            ...timeSheetCode,
+            times: timeSheetCode.times.filter((time) => time.date === date),
+          }))
+          .filter((item) => item.times.length > 0),
+      };
+
+      let totalHours = 0;
+      if (Object.keys(userTimeRegistrationList).length !== 0) {
+        totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
+          (total, timeSheetCode) => {
+            return (
+              total +
+              timeSheetCode.times.reduce(
+                (codeTotal, time) => codeTotal + time.hours,
+                0
+              )
+            );
+          },
+          0
+        );
+      }
+      setMonthTotalHours(totalHours | 0);
+
+      listTimeRegistration(userTimeRegistrationList);
+      setFilteredData(filteredTimeRegistration);
+    } catch (error) {
+    } finally {
+      setIsLoadingData(false);
+    }
   };
 
   const parseDate = (dateString: string): Date | null => {
@@ -206,116 +236,143 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const handleFormData = async (data: TimeRegistrationFormProps) => {
+    setIsLoadingData(true);
+
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
 
-    if (timeRegistrations) {
-      hasTimeCode =
-        timeRegistrations?.timeSheetCodes?.filter((item) => {
-          return item.timeCode.tsCode === data.timeCodeName;
-        }).length > 0;
+    try {
+      if (timeRegistrations) {
+        hasTimeCode =
+          timeRegistrations?.timeSheetCodes?.filter((item) => {
+            return item.timeCode.tsCode === data.timeCodeName;
+          }).length > 0;
 
-      if (hasTimeCode) {
-        timeSheetCodeId = timeRegistrations?.timeSheetCodes?.filter((item) => {
-          return item.timeCode.tsCode === data.timeCodeName;
-        })[0].id;
-      } else {
-        let timeSheetId: number = timeRegistrations.id || 0;
+        if (hasTimeCode) {
+          timeSheetCodeId = timeRegistrations?.timeSheetCodes?.filter(
+            (item) => {
+              return item.timeCode.tsCode === data.timeCodeName;
+            }
+          )[0].id;
+        } else {
+          let timeSheetId: number = timeRegistrations.id || 0;
 
-        if (Object.keys(timeRegistrations).length === 0) {
-          timeSheetId = await addTimeSheets({
-            complete: false,
+          if (Object.keys(timeRegistrations).length === 0) {
+            timeSheetId = await addTimeSheets({
+              complete: false,
+              id: 0,
+              organizationId: 2,
+              timeFrameId: currentFrameDate?.id,
+              userId: 35,
+            });
+          }
+
+          timeSheetCodeId = await addUserTimeSheetCode({
             id: 0,
-            organizationId: 2,
-            timeFrameId: currentFrameDate?.id,
-            userId: 35,
+            pinned: false,
+            timeSheetId: timeSheetId,
+            timeCodeId: data.timeCodeId,
           });
         }
 
-        timeSheetCodeId = await addUserTimeSheetCode({
-          id: 0,
-          pinned: false,
-          timeSheetId: timeSheetId,
+        const userTimeRegistrationDetails = {
+          id: data.id,
+          date: parseDate(
+            selectedDates[0] || selectedDate || new Date().toLocaleString()
+          )?.toJSON(),
+          hours: data.hours,
+          projBillable: false,
+          tsBillable: false,
+          archived: false,
+          processed: false,
           timeCodeId: data.timeCodeId,
-        });
-      }
+          timeSheetCodeId: timeSheetCodeId,
+          comments: data.comments,
+        };
 
-      const userTimeRegistrationDetails = {
-        id: data.id,
-        date: parseDate(
-          selectedDates[0] || selectedDate || new Date().toLocaleString()
-        )?.toJSON(),
-        hours: data.hours,
-        projBillable: false,
-        tsBillable: false,
-        archived: false,
-        processed: false,
-        timeCodeId: data.timeCodeId,
-        timeSheetCodeId: timeSheetCodeId,
-        comments: data.comments,
-      };
+        if (userTimeRegistrationDetails.id !== 0) {
+          await editUserTimes(userTimeRegistrationDetails);
+        } else {
+          const listOfTimes: any[] = [];
+          selectedDates.forEach((item) => {
+            const parsedDate = parseDate(item) || new Date();
+            const formattedDate = format(
+              parsedDate,
+              "yyyy-MM-dd'T'HH:mm:ss.SSS"
+            );
 
-      if (userTimeRegistrationDetails.id !== 0) {
-        await editUserTimes(userTimeRegistrationDetails);
-      } else {
-        const listOfTimes: any[] = [];
-        selectedDates.forEach((item) => {
-          const parsedDate = parseDate(item) || new Date();
-          const formattedDate = format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss.SSS");
-
-          listOfTimes.push({
-            id: data.id,
-            date: formattedDate,
-            hours: data.hours,
-            projBillable: false,
-            tsBillable: false,
-            archived: false,
-            processed: false,
-            timeCodeId: data.timeCodeId,
-            timeSheetCodeId: timeSheetCodeId,
-            comments: data.comments,
+            listOfTimes.push({
+              id: data.id,
+              date: formattedDate,
+              hours: data.hours,
+              projBillable: false,
+              tsBillable: false,
+              archived: false,
+              processed: false,
+              timeCodeId: data.timeCodeId,
+              timeSheetCodeId: timeSheetCodeId,
+              comments: data.comments,
+            });
           });
-        });
 
-        await addUserTimeRegistration(listOfTimes);
+          await addUserTimeRegistration(listOfTimes);
+        }
+
+        const dataRes = await getDateLovs(
+          "TIMEFRAME",
+          currentFrameDate?.date || new Date().toDateString(),
+          currentFrameDate?.date || new Date().toDateString()
+        );
+
+        const userTimeRegistrationList = await getTimeSheetRegistration(
+          dataRes.id
+        );
+
+        const userTimerRegistration = calculateTotalTime(
+          userTimeRegistrationList
+        );
+
+        const filteredTimeRegistration: TimeRegistration = {
+          ...userTimerRegistration,
+          timeSheetCodes: userTimerRegistration.timeSheetCodes
+            .map((timeSheetCode) => ({
+              ...timeSheetCode,
+              times: timeSheetCode.times.filter(
+                (time) =>
+                  time.date.split("T")[0] ===
+                  parseDate(selectedDates[0])?.toJSON().split("T")[0]
+              ),
+            }))
+            .filter((item) => item.times.length > 0),
+        };
+        let totalHours = 0;
+        if (Object.keys(userTimeRegistrationList).length !== 0) {
+          totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
+            (total, timeSheetCode) => {
+              return (
+                total +
+                timeSheetCode.times.reduce(
+                  (codeTotal, time) => codeTotal + time.hours,
+                  0
+                )
+              );
+            },
+            0
+          );
+        }
+        setMonthTotalHours(totalHours | 0);
+        listTimeRegistration(userTimeRegistrationList);
+        setFilteredData(filteredTimeRegistration);
       }
 
-      const dataRes = await getDateLovs(
-        "TIMEFRAME",
-        currentFrameDate?.date || new Date().toDateString(),
-        currentFrameDate?.date || new Date().toDateString()
-      );
-
-      const userTimeRegistrationList = await getTimeSheetRegistration(
-        dataRes.id
-      );
-
-      const userTimerRegistration = calculateTotalTime(
-        userTimeRegistrationList
-      );
-
-      const filteredTimeRegistration: TimeRegistration = {
-        ...userTimerRegistration,
-        timeSheetCodes: userTimerRegistration.timeSheetCodes
-          .map((timeSheetCode) => ({
-            ...timeSheetCode,
-            times: timeSheetCode.times.filter(
-              (time) =>
-                time.date.split("T")[0] ===
-                parseDate(selectedDates[0])?.toJSON().split("T")[0]
-            ),
-          }))
-          .filter((item) => item.times.length > 0),
-      };
-
-      listTimeRegistration(userTimeRegistrationList);
-      setFilteredData(filteredTimeRegistration);
+      setSelectedDates([]);
+      listSelectedDates([]);
+      setShowTRForm(false);
+      setFormData(data);
+    } catch (error) {
+    } finally {
+      setIsLoadingData(false);
     }
-
-    setSelectedDates([]);
-    listSelectedDates([]);
-    setShowTRForm(false);
-    setFormData(data);
   };
 
   const setDate = (newDate: string) => {
@@ -375,7 +432,6 @@ const EventCalendar: React.FC<EventProps> = ({
   const handleDateClick = (date: Date) => {
     const formattedDate = date.toLocaleDateString();
     const id = timeSheetCodes?.id || 0;
-    console.log("parsed date", parseDate(formattedDate));
 
     if (timeRegistrations) {
       const userTimerRegistration = calculateTotalTime(timeRegistrations);
@@ -482,35 +538,41 @@ const EventCalendar: React.FC<EventProps> = ({
     setCurrentMonthIndex((prevIndex) =>
       prevIndex > 0 ? prevIndex - 1 : prevIndex
     );
+
+    console.log(
+      "{allowedMonths[currentMonthIndex]",
+      allowedMonths[currentMonthIndex]
+    );
   };
 
   const handleNextMonth = () => {
     setCurrentMonthIndex((prevIndex) =>
       prevIndex < allowedMonths.length - 1 ? prevIndex + 1 : prevIndex
     );
+
+    console.log(
+      "{allowedMonths[currentMonthIndex]",
+      allowedMonths[currentMonthIndex]
+    );
   };
 
   const handleCustomNext = () => {
-    // Custom function for next button functionality
-    handleNextMonth(); // Call your specific logic here
+    handleNextMonth();
   };
 
   const handleCustomPrevious = () => {
     // Custom function for previous button functionality
-    handlePreviousMonth(); // Call your specific logic her
+    handlePreviousMonth();
   };
 
   return (
     <div className="w-full flex flex-col mt-1">
       <Calendar
-        //   value={allowedMonths[currentMonthIndex]}
+        // value={allowedMonths[currentMonthIndex]}
         value={new Date()}
         defaultView="month"
         minDetail="month"
         locale="en"
-        //defaultValue
-        //  calendarType="gregory"
-        // navigationLabel={CustomNavigationLabel}
         showNeighboringMonth={false}
         className={view === "calendar" ? "show_calendar" : "hide_calendar"}
         maxDate={new Date(endDate ? endDate : "")}
@@ -520,43 +582,52 @@ const EventCalendar: React.FC<EventProps> = ({
         selectRange={false}
         // tileDisabled={tileDisabled}
         onActiveStartDateChange={async ({ activeStartDate }) => {
-          const data = await getDateLovs(
-            "TIMEFRAME",
-            activeStartDate?.toDateString() || new Date().toDateString(),
-            activeStartDate?.toDateString() || new Date().toDateString()
-          );
+          setIsLoadingData(true);
 
-          const userTimeRegistrationList = await getTimeSheetRegistration(
-            data.id
-          );
-          const response = await getTimeFrameCalendars(data.id);
-
-          getCurrentFrameDate({
-            id: data.id,
-            date: data.value,
-          });
-
-          if (Object.keys(userTimeRegistrationList).length !== 0) {
-            const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
-              (total, timeSheetCode) => {
-                return (
-                  total +
-                  timeSheetCode.times.reduce(
-                    (codeTotal, time) => codeTotal + time.hours,
-                    0
-                  )
-                );
-              },
-              0
+          try {
+            const data = await getDateLovs(
+              "TIMEFRAME",
+              activeStartDate?.toDateString() || new Date().toDateString(),
+              activeStartDate?.toDateString() || new Date().toDateString()
             );
 
-            setMonthTotalHours(totalHours | 0);
-            //  listTimeRegistration(userTimeRegistrationList);
-          } else {
-            setMonthTotalHours(0);
+            console.log("data", data);
+
+            const userTimeRegistrationList = await getTimeSheetRegistration(
+              data.id
+            );
+            const response = await getTimeFrameCalendars(data.id);
+
+            getCurrentFrameDate({
+              id: data.id,
+              date: data.value,
+            });
+
+            if (Object.keys(userTimeRegistrationList).length !== 0) {
+              const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
+                (total, timeSheetCode) => {
+                  return (
+                    total +
+                    timeSheetCode.times.reduce(
+                      (codeTotal, time) => codeTotal + time.hours,
+                      0
+                    )
+                  );
+                },
+                0
+              );
+
+              setMonthTotalHours(totalHours | 0);
+              //  listTimeRegistration(userTimeRegistrationList);
+            } else {
+              setMonthTotalHours(0);
+            }
+            setHolidays(response || []);
+            listTimeRegistration(userTimeRegistrationList);
+          } catch (error) {
+          } finally {
+            setIsLoadingData(false);
           }
-          setHolidays(response || []);
-          listTimeRegistration(userTimeRegistrationList);
         }}
         tileClassName={({ date }) => {
           let classNames = "";
@@ -610,7 +681,6 @@ const EventCalendar: React.FC<EventProps> = ({
       ) : (
         <></>
       )}
-
       {showTRForm && showCalendarView ? (
         <TimeRegistrationForm
           showForm={showTRForm}
@@ -647,7 +717,6 @@ const EventCalendar: React.FC<EventProps> = ({
           )}
         </>
       )}
-
       {!showTRForm &&
       filteredData?.timeSheetCodes?.length === 0 &&
       showCalendarView ? (
@@ -657,7 +726,6 @@ const EventCalendar: React.FC<EventProps> = ({
       ) : (
         <></>
       )}
-
       {!showTRForm && showCalendarView && !timeRegistrations?.complete ? (
         <div className=" fixed bottom-6 right-3">
           <button
