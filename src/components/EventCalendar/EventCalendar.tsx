@@ -587,7 +587,20 @@ const EventCalendar: React.FC<EventProps> = ({
         // tileDisabled={tileDisabled}
         onActiveStartDateChange={async ({ activeStartDate }) => {
           setIsLoadingData(true);
-
+          setFilteredData({
+            complete: false,
+            id: 0,
+            organizationId: 0,
+            timeFrameId: 0,
+            timeFrameLov: {
+              id: 0,
+              value: "",
+              startDate: "",
+              endDate: "",
+            },
+            timeSheetCodes: [],
+            userId: 0,
+          });
           try {
             const data = await getDateLovs(
               "TIMEFRAME",
