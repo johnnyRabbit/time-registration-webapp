@@ -255,19 +255,19 @@ const TimeRegistraionPage: React.FC = () => {
       currentFrameDate?.id || 0
     );
 
-    if (nextTimeFrame) {
-      const params = {
-        timeSheetId: timeRegistrations?.id,
-        nextTimeFrameId: nextTimeFrame?.id, // 505,
-      };
-
-      try {
+    try {
+      if (nextTimeFrame) {
+        const params = {
+          timeSheetId: timeRegistrations?.id,
+          nextTimeFrameId: nextTimeFrame?.id, // 505,
+        };
         const respones = await fowardUserPins(params);
-      } catch (error) {
-        console.log("error", error);
-      } finally {
+      } else {
         setIsLoadingData(false);
       }
+    } catch (error) {
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -434,7 +434,7 @@ const TimeRegistraionPage: React.FC = () => {
                   </div>
                   <div className="flex w-full flex-col mb-3">
                     <CustomButton
-                      text="IMPORT PINS"
+                      text="FORWARD PINS"
                       color="blue"
                       style={styles.btnImportPins}
                       icon={<FaThumbtack />}
