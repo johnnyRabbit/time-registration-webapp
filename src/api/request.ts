@@ -31,7 +31,7 @@ export const userForgotPassword = async (email: string) => {
   try {
     const response = await api.post("/api/Account/ForgotPassword", {
       organizationId: 0,
-      path: "/account/forgot-password",
+      path: "/account/set-password",
       port: 443,
       protocol: "http",
       requestHost:
