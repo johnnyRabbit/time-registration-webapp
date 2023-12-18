@@ -18,8 +18,7 @@ const Login: React.FC = () => {
         return;
       }
 
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
+      if (!validateEmail) {
         setError("Please enter a valid email address.");
         return;
       }
