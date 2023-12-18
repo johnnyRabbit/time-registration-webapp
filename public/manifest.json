@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Kameleon - Time Registration",
+  "name": "Kameleon web app Time Registration",
   "icons": [
     {
       "src": "favicon.ico",

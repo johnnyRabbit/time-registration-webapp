@@ -1,13 +1,32 @@
-import { useEffect } from "react";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import { TimeRegistrationProvider } from "./context/TimeRegistrationContext";
 import TimeRegistraionPage from "./views/TimeRegistrationPage";
+import Login from "./components/Login/Login";
+import NotFound from "./views/NotFound/NotFound";
+import ForgotPassword from "./views/ForgotPassword/ForgotPassword";
+import SetPassword from "./views/SetPassword/SetPassword";
 
 function App() {
   return (
     <TimeRegistrationProvider>
       <div className="h-screen w-full bg-[#F6F6F6]">
-        <TimeRegistraionPage />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route
+              path="/user/time-registration"
+              element={<TimeRegistraionPage />}
+            />
+            <Route
+              path="/account/forgot-password"
+              element={<ForgotPassword />}
+            />
+            <Route path="/account/set-password" element={<SetPassword />} />
+            <Route path="/not-found" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
       </div>
     </TimeRegistrationProvider>
   );
