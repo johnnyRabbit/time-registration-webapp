@@ -1,8 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons from react-icons library
 import { useNavigate } from "react-router-dom";
 import { userAuthenticate } from "../../api/request";
 import loginImage from "./img/kameleon_logo.svg"; // Import your login image
+
+type loginProps = {
+  context: string;
+  defaultOrgId: number;
+  defaultRoleId: number;
+  defaultRoleType: string;
+  email: string;
+  id: number;
+  isLockout: boolean;
+  language: string;
+  orgColor: string;
+  orgId: number;
+  orgTextColor: string;
+  refreshToken: refreshTokenProps;
+  token: string;
+  url: string;
+  userAlias: string;
+  userFullName: string;
+  userName: string;
+};
+
+type refreshTokenProps = {
+  username: string;
+  token: string;
+  expirationDate: string;
+};
+
+type errorProps = {
+  response: {
+    data: {
+      error: string;
+    };
+  };
+};
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +44,11 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("token", token);
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -24,13 +63,15 @@ const Login: React.FC = () => {
       }
 
       setError("");
-      const response = await userAuthenticate(email, password);
+      const response: loginProps = await userAuthenticate(email, password);
 
-      console.log("Login Successful:", response);
-
-      navigate("/user/time-registration");
+      localStorage.setItem("token", response.token);
+      navigate(
+        `/user/time-registration?userId=${response.id}&organizationId=${response.defaultOrgId}`
+      );
     } catch (error) {
       console.error("Login Error:", error);
+      setError("Invalid Credentials");
     }
   };
 

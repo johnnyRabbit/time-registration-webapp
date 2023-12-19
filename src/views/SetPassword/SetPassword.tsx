@@ -1,39 +1,50 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { userAuthenticate } from "../../api/request";
+import { userResetPassword } from "../../api/request";
 import loginImage from "./img/kameleon_logo.svg"; // Import your login image
 import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa"; // Import eye icons from react-icons library
 
 const SetPassword: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
+
+  const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
 
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const urlParams = new URLSearchParams(window.location.search);
 
   const handleSetPassword = async () => {
     try {
-      if (!email || !password) {
+      if (!confirmPassword || !password) {
         setError("Please fill in all required fields.");
         return;
       }
 
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        setError("Please enter a valid email address.");
+      if (!passwordMatch) {
+        setError("Passwords does not match!");
         return;
       }
 
       setError("");
-      const response = await userAuthenticate(email, password);
+
+      const userName = urlParams.get("UserName");
+      const code = urlParams.get("Code");
+
+      const response = await userResetPassword(
+        password,
+        confirmPassword,
+        userName || "",
+        code || ""
+      );
 
       console.log("Login Successful:", response);
 
-      navigate("/user/login");
+      navigate("/account/login");
     } catch (error) {
       console.error("Login Error:", error);
     }
@@ -47,17 +58,22 @@ const SetPassword: React.FC = () => {
     setShowConfirmPassword((prevState) => !prevState);
   };
 
-  const validateEmail = (email: string) => {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(email);
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+    // Check if passwords match whenever the password field changes
+    setPasswordMatch(event.target.value === confirmPassword);
   };
 
-  const goToForgotPassword = () => {
-    navigate("/login");
+  const handleConfirmPasswordChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(event.target.value);
+    // Check if passwords match whenever the confirm password field changes
+    setPasswordMatch(event.target.value === password);
   };
 
   const goBack = () => {
-    navigate("/login");
+    navigate("/account/login");
   };
 
   return (
@@ -83,7 +99,7 @@ const SetPassword: React.FC = () => {
             id="password"
             placeholder="New Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
             className="border border-gray-300 rounded px-3 py-2 pr-10"
             required
           />
@@ -105,7 +121,7 @@ const SetPassword: React.FC = () => {
             id="password"
             placeholder="Confirm Password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={handleConfirmPasswordChange}
             className="border border-gray-300 rounded px-3 py-2 pr-10"
             required
           />

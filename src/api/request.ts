@@ -10,9 +10,9 @@ import {
 
 const urlParams = new URLSearchParams(window.location.search);
 
-const token = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxpby5tYXJ0aW5zQGJsdWVwYW5kYS5wdCIsImp0aSI6IjIzMWFlMmFlLWM0ZWUtNDFkMi1hYjM0LTlkZTBlYjQ2YzA4MSIsImVtYWlsIjoiaGVsaW8ubWFydGluc0BibHVlcGFuZGEucHQiLCJ1aWQiOiIzNSIsImlzd2ViIjoiRmFsc2UiLCJvcmdzIjoiWzIsMywxOSw2LDcwXSIsIm9yZ2lkIjoiMiIsImNoaWxkb3JncyI6IlszLDE5LDQ5LDcwXSIsInVzZXJyb2xlcyI6IltcIkFETUlOXCIsXCJNQU5BR0VSXCIsXCJIUkFETUlOXCIsXCJDT01QQURNSU5cIixcIlRFQU1cIixcIlVTRVJcIl0iLCJyb2xlcyI6WyJBRE1JTiIsIk1BTkFHRVIiLCJIUkFETUlOIiwiQ09NUEFETUlOIiwiVEVBTSIsIlVTRVIiXSwiZXhwIjoxNzAyNTc2MjczLCJpc3MiOiJLYW1lbGVvbklkZW50aXR5IiwiYXVkIjoiS2FtZWxlb25JZGVudGl0eVVzZXIifQ.o2g0iakHAHnJNIWhA28zy1fVy790AqXWfq1lSSmVJos`;
-const userId = 35; // urlParams.get("userId");
-const organizationId = 2; // urlParams.get("organizationId");
+const token = `Bearer ${localStorage.getItem("token")}`;
+const userId = urlParams.get("userId");
+const organizationId = urlParams.get("organizationId");
 
 export const userAuthenticate = async (email: string, password: string) => {
   try {
@@ -38,6 +38,26 @@ export const userForgotPassword = async (email: string) => {
         "time-registration-webapp-git-master-smartableways.vercel.app",
       userId: 0,
       userName: "joao.coelho@bluepanda.pt",
+    });
+    return response.data;
+  } catch (error) {
+    // Handle error here
+    throw error;
+  }
+};
+
+export const userResetPassword = async (
+  password: string,
+  confirmPassword: string,
+  userName: string,
+  code: string
+) => {
+  try {
+    const response = await api.post("/api/Account/ResetPassword", {
+      password,
+      confirmPassword,
+      userName,
+      code,
     });
     return response.data;
   } catch (error) {

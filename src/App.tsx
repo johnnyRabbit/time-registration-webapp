@@ -13,7 +13,7 @@ function App() {
       <div className="h-screen w-full bg-[#F6F6F6]">
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route index path="/account/login" element={<Login />} />
             <Route
               path="/user/time-registration"
               element={<TimeRegistraionPage />}
@@ -24,7 +24,10 @@ function App() {
             />
             <Route path="/account/set-password" element={<SetPassword />} />
             <Route path="/not-found" element={<NotFound />} />
-            <Route path="*" element={<NotFound />} />
+            <Route
+              path="*"
+              element={<Navigate to="/account/login" replace />}
+            />
           </Routes>
         </BrowserRouter>
       </div>
