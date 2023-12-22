@@ -43,10 +43,6 @@ const SetPassword: React.FC = () => {
         code || ""
       );
       setIsLoginSucessful(response);
-
-      console.log("Login Successful:", response);
-
-      navigate("/account/login");
     } catch (error) {
       console.error("Login Error:", error);
     }
