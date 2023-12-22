@@ -23,6 +23,7 @@ import {
 import SpecificMonthsCalendar from "../components/EventCalendar/SpecificMonthsCalendar";
 import TopBar from "../components/TopBar/TopBar";
 import LoadingSpinner from "../components/Loading/LoadingSpinner";
+import { useLocation } from "react-router-dom";
 
 export type MonthData = {
   id: number;
@@ -57,7 +58,7 @@ const TimeRegistraionPage: React.FC = () => {
   const [pathfrom, setPathFrom] = useState<string>();
   const [hasRecords, setHasRecords] = useState<boolean>(true);
   const [allowedMonths, setAllowedMonths] = useState<Date[]>();
-
+  const location = useLocation();
   const {
     timeRegistrations,
     showCalendarView,
@@ -82,6 +83,16 @@ const TimeRegistraionPage: React.FC = () => {
     setDateFrameList,
     setHolidays,
   } = useTimeRegistration();
+
+  useEffect(() => {
+    const urlParams1 = new URLSearchParams(location.search);
+    const organizationId1 = urlParams1.get("organizationId");
+    const userId1 = urlParams1.get("userId");
+
+    // Do something with the organizationId here or set it in state
+    console.log("Organization ID:", organizationId1);
+    console.log("userId1 ID:", userId1);
+  }, [location.search]);
 
   useEffect(() => {
     const handleButtonClick = (ele: any) => {

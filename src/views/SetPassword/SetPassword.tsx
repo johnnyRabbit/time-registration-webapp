@@ -17,6 +17,7 @@ const SetPassword: React.FC = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
+  const [isLoginSuccessful, setIsLoginSucessful] = useState<boolean>(false);
 
   const handleSetPassword = async () => {
     try {
@@ -41,6 +42,7 @@ const SetPassword: React.FC = () => {
         userName || "",
         code || ""
       );
+      setIsLoginSucessful(response);
 
       console.log("Login Successful:", response);
 
@@ -72,6 +74,17 @@ const SetPassword: React.FC = () => {
     setPasswordMatch(event.target.value === password);
   };
 
+  const validatePassword = (password: string): boolean => {
+    if (password.length < 8 || password.length > 100) {
+      return false;
+    }
+
+    const hasLowercase = /[a-z]/.test(password);
+    const hasUppercase = /[A-Z]/.test(password);
+
+    return hasLowercase && hasUppercase;
+  };
+
   const goBack = () => {
     navigate("/account/login");
   };
@@ -85,18 +98,18 @@ const SetPassword: React.FC = () => {
           </button>
         </div>
         <div className="mb-8 mt-8 flex-col ">
-          <img src={loginImage} alt="Login" />{" "}
+          <img src={loginImage} alt="Login" />
           <label className="flex items-center content-center justify-center text-base mt-6 text-[#1c85e8]">
-            Reset your password
+            {isLoginSuccessful
+              ? "Operation was successful"
+              : "Set your password"}
           </label>
         </div>
 
-        {/* Replace the text with an image */}
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         <div className="flex flex-col mb-2 relative">
           <input
             type={showPassword ? "text" : "password"}
-            id="password"
             placeholder="New Password"
             value={password}
             onChange={handlePasswordChange}
@@ -118,7 +131,6 @@ const SetPassword: React.FC = () => {
         <div className="flex flex-col mb-2 relative">
           <input
             type={showConfirmPassword ? "text" : "password"}
-            id="password"
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
@@ -142,7 +154,7 @@ const SetPassword: React.FC = () => {
           onClick={handleSetPassword}
           className="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 transition-all duration-200 w-full"
         >
-          Set New Password
+          {isLoginSuccessful ? "Return to Login" : "Set New Password"}
         </button>
       </div>
     </div>

@@ -33,11 +33,11 @@ export const userForgotPassword = async (email: string) => {
       organizationId: 0,
       path: "/account/set-password",
       port: 443,
-      protocol: "http",
+      protocol: "https",
       requestHost:
         "time-registration-webapp-git-master-smartableways.vercel.app",
       userId: 0,
-      userName: "joao.coelho@bluepanda.pt",
+      userName: email,
     });
     return response.data;
   } catch (error) {
@@ -71,6 +71,8 @@ export const getLovsDropdown = async (
   onlyParents: boolean,
   onlyActives: boolean
 ) => {
+  console.log("urlParams.get(userId);", urlParams.get("userId"));
+  console.log("userId", userId);
   try {
     const response: AxiosResponse<MonthData[]> = await api.get(
       "api/Lovs/GetLovsDropdown",
