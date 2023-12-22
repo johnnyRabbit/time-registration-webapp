@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import {
   FaComment,
   FaEdit,
@@ -18,6 +18,7 @@ import {
   getTimeSheetRegistration,
   pinnedUserTimeSheetCode,
 } from "../../api/request";
+import { SessionContext } from "../../context/SessionContext";
 
 type timeCodeProps = {
   data: TimeSheetCodes;
@@ -40,6 +41,8 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
   const [totalHours, setTotalHours] = useState<number>();
   const { timeRegistrations, listTimeRegistration, currentFrameDate } =
     useTimeRegistration();
+  const { isLoggedIn, userId, orgId, login, logout } =
+    useContext(SessionContext);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,12 +93,17 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
     await pinnedUserTimeSheetCode(params);
 
     const dataRes = await getDateLovs(
+      orgId || 0,
       "TIMEFRAME",
       currentFrameDate?.date || new Date().toDateString(),
       currentFrameDate?.date || new Date().toDateString()
     );
 
-    const userTimeRegistrationList = await getTimeSheetRegistration(dataRes.id);
+    const userTimeRegistrationList = await getTimeSheetRegistration(
+      orgId || 0,
+      userId || 0,
+      dataRes.id
+    );
 
     listTimeRegistration(userTimeRegistrationList);
   };

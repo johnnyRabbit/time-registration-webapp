@@ -8,12 +8,6 @@ import {
   TimeSheetCodeProps,
 } from "../context/TimeRegistrationContext";
 
-const urlParams = new URLSearchParams(window.location.search);
-
-const token = `Bearer ${localStorage.getItem("token")}`;
-const userId = urlParams.get("userId");
-const organizationId = urlParams.get("organizationId");
-
 export const userAuthenticate = async (email: string, password: string) => {
   try {
     const response = await api.post("/api/Account/authenticate", {
@@ -67,12 +61,11 @@ export const userResetPassword = async (
 };
 
 export const getLovsDropdown = async (
+  organizationId: number,
   typeName: string,
   onlyParents: boolean,
   onlyActives: boolean
 ) => {
-  console.log("urlParams.get(userId);", urlParams.get("userId"));
-  console.log("userId", userId);
   try {
     const response: AxiosResponse<MonthData[]> = await api.get(
       "api/Lovs/GetLovsDropdown",
@@ -84,7 +77,7 @@ export const getLovsDropdown = async (
           onlyActives,
         },
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -96,7 +89,10 @@ export const getLovsDropdown = async (
   }
 };
 
-export const getTimeFrameCalendars = async (timeFrameId: number) => {
+export const getTimeFrameCalendars = async (
+  organizationId: number,
+  timeFrameId: number
+) => {
   try {
     const response: AxiosResponse = await api.get(
       "api/Calendars/GetTimeFrameCalendars",
@@ -106,7 +102,7 @@ export const getTimeFrameCalendars = async (timeFrameId: number) => {
           organizationId,
         },
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -119,6 +115,7 @@ export const getTimeFrameCalendars = async (timeFrameId: number) => {
 };
 
 export const getDateLovs = async (
+  organizationId: number,
   type: string,
   startDate: string,
   endDate: string
@@ -134,7 +131,7 @@ export const getDateLovs = async (
           organizationId,
         },
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -146,7 +143,10 @@ export const getDateLovs = async (
   }
 };
 
-export const getUserTimeCodes = async () => {
+export const getUserTimeCodes = async (
+  organizationId: number,
+  userId: number
+) => {
   try {
     const response: AxiosResponse = await api.get(
       "api/TimeCodes/GetTimeCodesDropdown",
@@ -156,7 +156,7 @@ export const getUserTimeCodes = async () => {
           organizationId,
         },
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -167,7 +167,11 @@ export const getUserTimeCodes = async () => {
   }
 };
 
-export const getTimeSheetRegistration = async (timeFrameId: number) => {
+export const getTimeSheetRegistration = async (
+  organizationId: number,
+  userId: number,
+  timeFrameId: number
+) => {
   try {
     const response: AxiosResponse<TimeRegistration> = await api.get(
       "api/TimeSheets/GetTimeSheetRegistration",
@@ -178,7 +182,7 @@ export const getTimeSheetRegistration = async (timeFrameId: number) => {
           timeFrameId,
         },
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -194,7 +198,7 @@ export const addUserTimeSheetCode = async (data: TimeSheetCodeProps) => {
   try {
     const response = await api.post("/api/TimeSheetCodes", data, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return response.data;
@@ -208,7 +212,7 @@ export const pinnedUserTimeSheetCode = async (data: TimeSheetCodeProps) => {
   try {
     const response = await api.put("/api/TimeSheetCodes", data, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return response.data;
@@ -222,7 +226,7 @@ export const addUserTimeRegistration = async (data: any) => {
   try {
     const response = await api.post("/api/Times/AddMultipleTimes", data, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return response.data;
@@ -236,7 +240,7 @@ export const editUserTimes = async (data: any) => {
   try {
     const response = await api.put("/api/Times", data, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return response.data;
@@ -250,7 +254,7 @@ export const removeUserTimes = async (id: number) => {
   try {
     const response = await api.delete(`/api/Times/${id}`, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return response.data;
@@ -264,7 +268,7 @@ export const removeUserTimeSheetCodes = async (id: number, times: boolean) => {
   try {
     const response = await api.delete(`/api/TimeSheetCodes/${id}/${times}`, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
 
@@ -282,7 +286,7 @@ export const fowardUserPins = async (data: any) => {
       data,
       {
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       }
     );
@@ -297,7 +301,7 @@ export const completeTimeSheets = async (data: any) => {
   try {
     const response = await api.put("/api/TimeSheets", data, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return response.data;
@@ -311,7 +315,7 @@ export const addTimeSheets = async (data: any) => {
   try {
     const response = await api.post("/api/TimeSheets", data, {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     return response.data;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import {
   Event,
@@ -14,6 +14,7 @@ import {
   TimeSheetCodes,
   useTimeRegistration,
 } from "../../context/TimeRegistrationContext";
+import { SessionContext } from "../../context/SessionContext";
 
 interface TimeRegistration {
   onCancel: () => void;
@@ -34,11 +35,12 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
   const [date, setDate] = useState<Date>();
   const { timeSheetCodes, selectedDates, timeRegistrations, currentFrameDate } =
     useTimeRegistration();
-
+  const { isLoggedIn, userId, orgId, login, logout } =
+    useContext(SessionContext);
   useEffect(() => {
     const fetchUserTimeCodes = async () => {
       try {
-        const data = await getUserTimeCodes();
+        const data = await getUserTimeCodes(orgId || 0, userId || 0);
         setTUserimeCode(data);
 
         if (timeSheetCodes) {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MonthYear } from "../components/MonthYear/MonthYear";
 import CustomButton from "../components/CustomButton/CustomButton";
 import { FaThumbtack, FaPlus } from "react-icons/fa";
@@ -24,6 +24,7 @@ import SpecificMonthsCalendar from "../components/EventCalendar/SpecificMonthsCa
 import TopBar from "../components/TopBar/TopBar";
 import LoadingSpinner from "../components/Loading/LoadingSpinner";
 import { useLocation } from "react-router-dom";
+import { SessionContext } from "../context/SessionContext";
 
 export type MonthData = {
   id: number;
@@ -47,10 +48,6 @@ declare global {
     };
   }
 }
-
-const urlParams = new URLSearchParams(window.location.search);
-const organizationId = urlParams.get("organizationId");
-const userId = urlParams.get("userId");
 
 const TimeRegistraionPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
@@ -83,16 +80,8 @@ const TimeRegistraionPage: React.FC = () => {
     setDateFrameList,
     setHolidays,
   } = useTimeRegistration();
-
-  useEffect(() => {
-    const urlParams1 = new URLSearchParams(location.search);
-    const organizationId1 = urlParams1.get("organizationId");
-    const userId1 = urlParams1.get("userId");
-
-    // Do something with the organizationId here or set it in state
-    console.log("Organization ID:", organizationId1);
-    console.log("userId1 ID:", userId1);
-  }, [location.search]);
+  const { isLoggedIn, userId, orgId, login, logout } =
+    useContext(SessionContext);
 
   useEffect(() => {
     const handleButtonClick = (ele: any) => {
@@ -153,10 +142,17 @@ const TimeRegistraionPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    console.log("session context", userId, orgId);
+
     const fetchData = async () => {
       try {
         setIsLoadingData(true);
-        const data = await getLovsDropdown("TIMEFRAME", false, true);
+        const data = await getLovsDropdown(
+          orgId || 0,
+          "TIMEFRAME",
+          false,
+          true
+        );
         const first = data[0];
         const last = data[data.length - 1];
 
@@ -178,13 +174,14 @@ const TimeRegistraionPage: React.FC = () => {
         setAllowedMonths(allowedMonthsList);
 
         const dataLovs = await getDateLovs(
+          orgId || 0,
           "TIMEFRAME",
           currentFrameDate?.date || new Date().toDateString(),
           currentFrameDate?.date || new Date().toDateString()
         );
 
         const userTimeRegistrationList: TimeRegistration =
-          await getTimeSheetRegistration(dataLovs.id);
+          await getTimeSheetRegistration(orgId || 0, userId || 0, dataLovs.id);
 
         setDates(dataLovs.startDate, dataLovs.endDate);
 
@@ -218,7 +215,7 @@ const TimeRegistraionPage: React.FC = () => {
         setMonthTotalHours(totalHours | 0);
         listTimeRegistration(userTimeRegistrationList);
 
-        const response = await getTimeFrameCalendars(dataLovs.id);
+        const response = await getTimeFrameCalendars(orgId || 0, dataLovs.id);
         setHolidays(response);
 
         setDateFrameList(dataFrame);
@@ -230,7 +227,7 @@ const TimeRegistraionPage: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [location.search]);
 
   const findNextObjectById = (
     list: DataFrameDateProps[],
@@ -288,7 +285,7 @@ const TimeRegistraionPage: React.FC = () => {
     const data = {
       complete: true,
       id: timeRegistrations?.id,
-      organizationId: organizationId || 2,
+      organizationId: orgId || 2,
       timeFrameId: timeRegistrations?.timeFrameId,
       userId: userId || 35,
     };
@@ -297,12 +294,15 @@ const TimeRegistraionPage: React.FC = () => {
       await completeTimeSheets(data);
 
       const dataRes = await getDateLovs(
+        orgId || 0,
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
         currentFrameDate?.date || new Date().toDateString()
       );
 
       const userTimeRegistrationList = await getTimeSheetRegistration(
+        orgId || 0,
+        userId || 0,
         dataRes.id
       );
       listTimeRegistration(userTimeRegistrationList);
@@ -327,12 +327,17 @@ const TimeRegistraionPage: React.FC = () => {
       await removeUserTimeSheetCodes(id, true);
       setMonthEvents({});
       const data = await getDateLovs(
+        orgId || 0,
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
         currentFrameDate?.date || new Date().toDateString()
       );
 
-      const userTimeRegistrationList = await getTimeSheetRegistration(data.id);
+      const userTimeRegistrationList = await getTimeSheetRegistration(
+        orgId || 0,
+        userId || 0,
+        data.id
+      );
 
       const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
         (total, timeSheetCode) => {

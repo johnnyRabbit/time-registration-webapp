@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Calendar, { TileDisabledFunc } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./EventCalendar.css";
@@ -25,6 +25,7 @@ import {
   removeUserTimes,
 } from "../../api/request";
 import { format, isValid, parse } from "date-fns";
+import { SessionContext } from "../../context/SessionContext";
 
 export interface Event {
   [date: string]: { id: number; name: string; color: string }[];
@@ -109,6 +110,9 @@ const EventCalendar: React.FC<EventProps> = ({
     getCurrentFrameDate,
   } = useTimeRegistration();
 
+  const { isLoggedIn, userId, orgId, login, logout } =
+    useContext(SessionContext);
+
   useEffect(() => {
     const event = (timeRegistrations || data)?.timeSheetCodes?.flatMap(
       (timeSheetCode) => timeSheetCode.times
@@ -164,12 +168,15 @@ const EventCalendar: React.FC<EventProps> = ({
 
       const date = data.times[0].date;
       const dataRes = await getDateLovs(
+        orgId || 0,
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
         currentFrameDate?.date || new Date().toDateString()
       );
 
       const userTimeRegistrationList = await getTimeSheetRegistration(
+        orgId || 0,
+        userId || 0,
         dataRes.id
       );
 
@@ -321,12 +328,15 @@ const EventCalendar: React.FC<EventProps> = ({
         }
 
         const dataRes = await getDateLovs(
+          orgId || 0,
           "TIMEFRAME",
           currentFrameDate?.date || new Date().toDateString(),
           currentFrameDate?.date || new Date().toDateString()
         );
 
         const userTimeRegistrationList = await getTimeSheetRegistration(
+          orgId || 0,
+          userId || 0,
           dataRes.id
         );
 
@@ -603,15 +613,18 @@ const EventCalendar: React.FC<EventProps> = ({
           });
           try {
             const data = await getDateLovs(
+              orgId || 0,
               "TIMEFRAME",
               activeStartDate?.toDateString() || new Date().toDateString(),
               activeStartDate?.toDateString() || new Date().toDateString()
             );
 
             const userTimeRegistrationList = await getTimeSheetRegistration(
+              orgId || 0,
+              userId || 0,
               data.id
             );
-            const response = await getTimeFrameCalendars(data.id);
+            const response = await getTimeFrameCalendars(orgId || 0, data.id);
 
             getCurrentFrameDate({
               id: data.id,

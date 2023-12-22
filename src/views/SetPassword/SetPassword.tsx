@@ -42,6 +42,7 @@ const SetPassword: React.FC = () => {
         userName || "",
         code || ""
       );
+
       setIsLoginSucessful(response);
     } catch (error) {
       console.error("Login Error:", error);
@@ -58,7 +59,6 @@ const SetPassword: React.FC = () => {
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
-    // Check if passwords match whenever the password field changes
     setPasswordMatch(event.target.value === confirmPassword);
   };
 
@@ -66,7 +66,6 @@ const SetPassword: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setConfirmPassword(event.target.value);
-    // Check if passwords match whenever the confirm password field changes
     setPasswordMatch(event.target.value === password);
   };
 

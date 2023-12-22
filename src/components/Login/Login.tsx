@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons from react-icons library
 import { useNavigate } from "react-router-dom";
 import { userAuthenticate } from "../../api/request";
 import loginImage from "./img/kameleon_logo.svg"; // Import your login image
+import { SessionContext } from "../../context/SessionContext";
 
 type loginProps = {
   context: string;
@@ -30,25 +31,13 @@ type refreshTokenProps = {
   expirationDate: string;
 };
 
-type errorProps = {
-  response: {
-    data: {
-      error: string;
-    };
-  };
-};
-
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log("token", token);
-  }, []);
+  const { login } = useContext(SessionContext);
 
   const handleLogin = async () => {
     try {
@@ -65,10 +54,13 @@ const Login: React.FC = () => {
       setError("");
       const response: loginProps = await userAuthenticate(email, password);
 
-      localStorage.setItem("token", response.token);
+      //localStorage.setItem("token", response.token);
+
       navigate(
         `/user/time-registration?userId=${response.id}&organizationId=${response.defaultOrgId}`
       );
+
+      login(response.id, response.defaultOrgId, response.token);
     } catch (error) {
       console.error("Login Error:", error);
       setError("Invalid Credentials");
