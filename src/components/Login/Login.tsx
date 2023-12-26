@@ -66,7 +66,8 @@ const Login: React.FC = () => {
   } = useTimeRegistration();
 
   useEffect(() => {
-    alert(sessionStorage.getItem("isFromMobile"));
+    alert(JSON.stringify(sessionStorage));
+    alert(JSON.stringify(localStorage));
     if (isLoggedIn && isFromMobile) {
       navigate(`/user/time-registration`);
     }
