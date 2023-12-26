@@ -41,7 +41,7 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
   const [totalHours, setTotalHours] = useState<number>();
   const { timeRegistrations, listTimeRegistration, currentFrameDate } =
     useTimeRegistration();
-  const { isLoggedIn, userId, orgId, login, logout } =
+  const { isLoggedIn, userId, orgId, token, login, logout } =
     useContext(SessionContext);
 
   useEffect(() => {
@@ -90,19 +90,21 @@ export const TimeCodeItem: React.FC<timeCodeProps> = ({
       timeCodeId: data.timeCodeId,
     };
 
-    await pinnedUserTimeSheetCode(params);
+    await pinnedUserTimeSheetCode(params, token || "");
 
     const dataRes = await getDateLovs(
       orgId || 0,
       "TIMEFRAME",
       currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString()
+      currentFrameDate?.date || new Date().toDateString(),
+      token || ""
     );
 
     const userTimeRegistrationList = await getTimeSheetRegistration(
       orgId || 0,
       userId || 0,
-      dataRes.id
+      dataRes.id,
+      token || ""
     );
 
     listTimeRegistration(userTimeRegistrationList);

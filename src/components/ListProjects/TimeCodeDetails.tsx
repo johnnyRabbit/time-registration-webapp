@@ -43,7 +43,7 @@ export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timesDetails, setTimeDetails] = useState<Times>();
   const { listTimeRegistration, currentFrameDate } = useTimeRegistration();
-  const { isLoggedIn, userId, orgId, login, logout } =
+  const { isLoggedIn, userId, token, orgId, login, logout } =
     useContext(SessionContext);
   useEffect(() => {
     const dataDetails = data.times.flatMap((timeSheetCode) => timeSheetCode);
@@ -89,19 +89,21 @@ export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
       timeCodeId: data.timeCodeId,
     };
 
-    await pinnedUserTimeSheetCode(params);
+    await pinnedUserTimeSheetCode(params, token || "");
 
     const dataRes = await getDateLovs(
       orgId || 0,
       "TIMEFRAME",
       currentFrameDate?.date || new Date().toDateString(),
-      currentFrameDate?.date || new Date().toDateString()
+      currentFrameDate?.date || new Date().toDateString(),
+      token || ""
     );
 
     const userTimeRegistrationList = await getTimeSheetRegistration(
       orgId || 0,
       userId || 0,
-      dataRes.id
+      dataRes.id,
+      token || ""
     );
     data.pinned = !data.pinned;
     listTimeRegistration(userTimeRegistrationList);

@@ -80,7 +80,7 @@ const TimeRegistraionPage: React.FC = () => {
     setDateFrameList,
     setHolidays,
   } = useTimeRegistration();
-  const { isLoggedIn, userId, orgId, login, logout } =
+  const { isLoggedIn, userId, orgId, token, login, logout } =
     useContext(SessionContext);
 
   useEffect(() => {
@@ -142,7 +142,7 @@ const TimeRegistraionPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log("session context", userId, orgId);
+    console.log("session context", userId, orgId, token);
 
     const fetchData = async () => {
       try {
@@ -151,7 +151,8 @@ const TimeRegistraionPage: React.FC = () => {
           orgId || 0,
           "TIMEFRAME",
           false,
-          true
+          true,
+          token || ""
         );
         const first = data[0];
         const last = data[data.length - 1];
@@ -177,11 +178,17 @@ const TimeRegistraionPage: React.FC = () => {
           orgId || 0,
           "TIMEFRAME",
           currentFrameDate?.date || new Date().toDateString(),
-          currentFrameDate?.date || new Date().toDateString()
+          currentFrameDate?.date || new Date().toDateString(),
+          token || ""
         );
 
         const userTimeRegistrationList: TimeRegistration =
-          await getTimeSheetRegistration(orgId || 0, userId || 0, dataLovs.id);
+          await getTimeSheetRegistration(
+            orgId || 0,
+            userId || 0,
+            dataLovs.id,
+            token || ""
+          );
 
         setDates(dataLovs.startDate, dataLovs.endDate);
 
@@ -215,7 +222,11 @@ const TimeRegistraionPage: React.FC = () => {
         setMonthTotalHours(totalHours | 0);
         listTimeRegistration(userTimeRegistrationList);
 
-        const response = await getTimeFrameCalendars(orgId || 0, dataLovs.id);
+        const response = await getTimeFrameCalendars(
+          orgId || 0,
+          dataLovs.id,
+          token || ""
+        );
         setHolidays(response);
 
         setDateFrameList(dataFrame);
@@ -269,7 +280,7 @@ const TimeRegistraionPage: React.FC = () => {
           timeSheetId: timeRegistrations?.id,
           nextTimeFrameId: nextTimeFrame?.id, // 505,
         };
-        const respones = await fowardUserPins(params);
+        const respones = await fowardUserPins(params, token || "");
       } else {
         setIsLoadingData(false);
       }
@@ -291,19 +302,21 @@ const TimeRegistraionPage: React.FC = () => {
     };
 
     try {
-      await completeTimeSheets(data);
+      await completeTimeSheets(data, token || "");
 
       const dataRes = await getDateLovs(
         orgId || 0,
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
-        currentFrameDate?.date || new Date().toDateString()
+        currentFrameDate?.date || new Date().toDateString(),
+        token || ""
       );
 
       const userTimeRegistrationList = await getTimeSheetRegistration(
         orgId || 0,
         userId || 0,
-        dataRes.id
+        dataRes.id,
+        token || ""
       );
       listTimeRegistration(userTimeRegistrationList);
     } catch (error) {
@@ -324,19 +337,21 @@ const TimeRegistraionPage: React.FC = () => {
     setIsLoadingData(true);
 
     try {
-      await removeUserTimeSheetCodes(id, true);
+      await removeUserTimeSheetCodes(id, true, token || "");
       setMonthEvents({});
       const data = await getDateLovs(
         orgId || 0,
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
-        currentFrameDate?.date || new Date().toDateString()
+        currentFrameDate?.date || new Date().toDateString(),
+        token || ""
       );
 
       const userTimeRegistrationList = await getTimeSheetRegistration(
         orgId || 0,
         userId || 0,
-        data.id
+        data.id,
+        token || ""
       );
 
       const totalHours = userTimeRegistrationList.timeSheetCodes.reduce(

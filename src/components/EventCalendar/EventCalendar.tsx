@@ -110,7 +110,7 @@ const EventCalendar: React.FC<EventProps> = ({
     getCurrentFrameDate,
   } = useTimeRegistration();
 
-  const { isLoggedIn, userId, orgId, login, logout } =
+  const { isLoggedIn, userId, orgId, token, login, logout } =
     useContext(SessionContext);
 
   useEffect(() => {
@@ -163,7 +163,7 @@ const EventCalendar: React.FC<EventProps> = ({
     setIsLoadingData(true);
 
     try {
-      await removeUserTimes(data.times[0].id);
+      await removeUserTimes(data.times[0].id, token || "");
       setMonthEvents({});
 
       const date = data.times[0].date;
@@ -171,13 +171,15 @@ const EventCalendar: React.FC<EventProps> = ({
         orgId || 0,
         "TIMEFRAME",
         currentFrameDate?.date || new Date().toDateString(),
-        currentFrameDate?.date || new Date().toDateString()
+        currentFrameDate?.date || new Date().toDateString(),
+        token || ""
       );
 
       const userTimeRegistrationList = await getTimeSheetRegistration(
         orgId || 0,
         userId || 0,
-        dataRes.id
+        dataRes.id,
+        token || ""
       );
 
       const userTimerRegistration = calculateTotalTime(
@@ -267,21 +269,27 @@ const EventCalendar: React.FC<EventProps> = ({
           let timeSheetId: number = timeRegistrations.id || 0;
 
           if (Object.keys(timeRegistrations).length === 0) {
-            timeSheetId = await addTimeSheets({
-              complete: false,
-              id: 0,
-              organizationId: 2,
-              timeFrameId: currentFrameDate?.id,
-              userId: 35,
-            });
+            timeSheetId = await addTimeSheets(
+              {
+                complete: false,
+                id: 0,
+                organizationId: orgId,
+                timeFrameId: currentFrameDate?.id,
+                userId: userId,
+              },
+              token || ""
+            );
           }
 
-          timeSheetCodeId = await addUserTimeSheetCode({
-            id: 0,
-            pinned: false,
-            timeSheetId: timeSheetId,
-            timeCodeId: data.timeCodeId,
-          });
+          timeSheetCodeId = await addUserTimeSheetCode(
+            {
+              id: 0,
+              pinned: false,
+              timeSheetId: timeSheetId,
+              timeCodeId: data.timeCodeId,
+            },
+            token || ""
+          );
         }
 
         const userTimeRegistrationDetails = {
@@ -300,7 +308,7 @@ const EventCalendar: React.FC<EventProps> = ({
         };
 
         if (userTimeRegistrationDetails.id !== 0) {
-          await editUserTimes(userTimeRegistrationDetails);
+          await editUserTimes(userTimeRegistrationDetails, token || "");
         } else {
           const listOfTimes: any[] = [];
           selectedDates.forEach((item) => {
@@ -324,20 +332,22 @@ const EventCalendar: React.FC<EventProps> = ({
             });
           });
 
-          await addUserTimeRegistration(listOfTimes);
+          await addUserTimeRegistration(listOfTimes, token || "");
         }
 
         const dataRes = await getDateLovs(
           orgId || 0,
           "TIMEFRAME",
           currentFrameDate?.date || new Date().toDateString(),
-          currentFrameDate?.date || new Date().toDateString()
+          currentFrameDate?.date || new Date().toDateString(),
+          token || ""
         );
 
         const userTimeRegistrationList = await getTimeSheetRegistration(
           orgId || 0,
           userId || 0,
-          dataRes.id
+          dataRes.id,
+          token || ""
         );
 
         const userTimerRegistration = calculateTotalTime(
@@ -616,15 +626,21 @@ const EventCalendar: React.FC<EventProps> = ({
               orgId || 0,
               "TIMEFRAME",
               activeStartDate?.toDateString() || new Date().toDateString(),
-              activeStartDate?.toDateString() || new Date().toDateString()
+              activeStartDate?.toDateString() || new Date().toDateString(),
+              token || ""
             );
 
             const userTimeRegistrationList = await getTimeSheetRegistration(
               orgId || 0,
               userId || 0,
-              data.id
+              data.id,
+              token || ""
             );
-            const response = await getTimeFrameCalendars(orgId || 0, data.id);
+            const response = await getTimeFrameCalendars(
+              orgId || 0,
+              data.id,
+              token || ""
+            );
 
             getCurrentFrameDate({
               id: data.id,

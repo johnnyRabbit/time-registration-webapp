@@ -64,7 +64,8 @@ export const getLovsDropdown = async (
   organizationId: number,
   typeName: string,
   onlyParents: boolean,
-  onlyActives: boolean
+  onlyActives: boolean,
+  token: string
 ) => {
   try {
     const response: AxiosResponse<MonthData[]> = await api.get(
@@ -77,7 +78,7 @@ export const getLovsDropdown = async (
           onlyActives,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -91,7 +92,8 @@ export const getLovsDropdown = async (
 
 export const getTimeFrameCalendars = async (
   organizationId: number,
-  timeFrameId: number
+  timeFrameId: number,
+  token: string
 ) => {
   try {
     const response: AxiosResponse = await api.get(
@@ -102,7 +104,7 @@ export const getTimeFrameCalendars = async (
           organizationId,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -118,7 +120,8 @@ export const getDateLovs = async (
   organizationId: number,
   type: string,
   startDate: string,
-  endDate: string
+  endDate: string,
+  token: string
 ) => {
   try {
     const response: AxiosResponse<DateLov> = await api.get(
@@ -131,7 +134,7 @@ export const getDateLovs = async (
           organizationId,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -145,7 +148,8 @@ export const getDateLovs = async (
 
 export const getUserTimeCodes = async (
   organizationId: number,
-  userId: number
+  userId: number,
+  token: string
 ) => {
   try {
     const response: AxiosResponse = await api.get(
@@ -156,7 +160,7 @@ export const getUserTimeCodes = async (
           organizationId,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -170,7 +174,8 @@ export const getUserTimeCodes = async (
 export const getTimeSheetRegistration = async (
   organizationId: number,
   userId: number,
-  timeFrameId: number
+  timeFrameId: number,
+  token: string
 ) => {
   try {
     const response: AxiosResponse<TimeRegistration> = await api.get(
@@ -182,7 +187,7 @@ export const getTimeSheetRegistration = async (
           timeFrameId,
         },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -194,11 +199,14 @@ export const getTimeSheetRegistration = async (
   }
 };
 
-export const addUserTimeSheetCode = async (data: TimeSheetCodeProps) => {
+export const addUserTimeSheetCode = async (
+  data: TimeSheetCodeProps,
+  token: string
+) => {
   try {
     const response = await api.post("/api/TimeSheetCodes", data, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -208,11 +216,14 @@ export const addUserTimeSheetCode = async (data: TimeSheetCodeProps) => {
   }
 };
 
-export const pinnedUserTimeSheetCode = async (data: TimeSheetCodeProps) => {
+export const pinnedUserTimeSheetCode = async (
+  data: TimeSheetCodeProps,
+  token: string
+) => {
   try {
     const response = await api.put("/api/TimeSheetCodes", data, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -222,11 +233,11 @@ export const pinnedUserTimeSheetCode = async (data: TimeSheetCodeProps) => {
   }
 };
 
-export const addUserTimeRegistration = async (data: any) => {
+export const addUserTimeRegistration = async (data: any, token: string) => {
   try {
     const response = await api.post("/api/Times/AddMultipleTimes", data, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -236,11 +247,11 @@ export const addUserTimeRegistration = async (data: any) => {
   }
 };
 
-export const editUserTimes = async (data: any) => {
+export const editUserTimes = async (data: any, token: string) => {
   try {
     const response = await api.put("/api/Times", data, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -250,11 +261,11 @@ export const editUserTimes = async (data: any) => {
   }
 };
 
-export const removeUserTimes = async (id: number) => {
+export const removeUserTimes = async (id: number, token: string) => {
   try {
     const response = await api.delete(`/api/Times/${id}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -264,11 +275,15 @@ export const removeUserTimes = async (id: number) => {
   }
 };
 
-export const removeUserTimeSheetCodes = async (id: number, times: boolean) => {
+export const removeUserTimeSheetCodes = async (
+  id: number,
+  times: boolean,
+  token: string
+) => {
   try {
     const response = await api.delete(`/api/TimeSheetCodes/${id}/${times}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -279,14 +294,14 @@ export const removeUserTimeSheetCodes = async (id: number, times: boolean) => {
   }
 };
 
-export const fowardUserPins = async (data: any) => {
+export const fowardUserPins = async (data: any, token: string) => {
   try {
     const response = await api.post(
       "/api/TimeSheetCodes/CopyTimeSheetCodes",
       data,
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -297,11 +312,11 @@ export const fowardUserPins = async (data: any) => {
   }
 };
 
-export const completeTimeSheets = async (data: any) => {
+export const completeTimeSheets = async (data: any, token: string) => {
   try {
     const response = await api.put("/api/TimeSheets", data, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -311,11 +326,11 @@ export const completeTimeSheets = async (data: any) => {
   }
 };
 
-export const addTimeSheets = async (data: any) => {
+export const addTimeSheets = async (data: any, token: string) => {
   try {
     const response = await api.post("/api/TimeSheets", data, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;

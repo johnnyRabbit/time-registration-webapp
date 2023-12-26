@@ -6,9 +6,12 @@ import Login from "./components/Login/Login";
 import NotFound from "./views/NotFound/NotFound";
 import ForgotPassword from "./views/ForgotPassword/ForgotPassword";
 import SetPassword from "./views/SetPassword/SetPassword";
-import { SessionProvider } from "./context/SessionContext";
+import { SessionContext, SessionProvider } from "./context/SessionContext";
+import { useContext } from "react";
 
 function App() {
+  const { isLoggedIn, userId, orgId, token, login, logout } =
+    useContext(SessionContext);
   return (
     <SessionProvider>
       <TimeRegistrationProvider>

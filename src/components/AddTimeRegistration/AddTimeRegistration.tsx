@@ -35,12 +35,16 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
   const [date, setDate] = useState<Date>();
   const { timeSheetCodes, selectedDates, timeRegistrations, currentFrameDate } =
     useTimeRegistration();
-  const { isLoggedIn, userId, orgId, login, logout } =
+  const { isLoggedIn, userId, orgId, token, login, logout } =
     useContext(SessionContext);
   useEffect(() => {
     const fetchUserTimeCodes = async () => {
       try {
-        const data = await getUserTimeCodes(orgId || 0, userId || 0);
+        const data = await getUserTimeCodes(
+          orgId || 0,
+          userId || 0,
+          token || ""
+        );
         setTUserimeCode(data);
 
         if (timeSheetCodes) {

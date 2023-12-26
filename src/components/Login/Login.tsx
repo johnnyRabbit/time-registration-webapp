@@ -53,14 +53,9 @@ const Login: React.FC = () => {
 
       setError("");
       const response: loginProps = await userAuthenticate(email, password);
-
-      //localStorage.setItem("token", response.token);
-
-      navigate(
-        `/user/time-registration?userId=${response.id}&organizationId=${response.defaultOrgId}`
-      );
-
       login(response.id, response.defaultOrgId, response.token);
+
+      navigate(`/user/time-registration`);
     } catch (error) {
       console.error("Login Error:", error);
       setError("Invalid Credentials");
