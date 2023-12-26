@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { userAuthenticate } from "../../api/request";
 import loginImage from "./img/kameleon_logo.svg"; // Import your login image
 import { SessionContext } from "../../context/SessionContext";
+import LoadingSpinner from "../Loading/LoadingSpinner";
+import { useTimeRegistration } from "../../context/TimeRegistrationContext";
 
 type loginProps = {
   context: string;
@@ -37,7 +39,37 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useContext(SessionContext);
+  const { login, isLoggedIn, isFromMobile } = useContext(SessionContext);
+  const {
+    timeRegistrations,
+    showCalendarView,
+    holidaysList,
+    dataFrameList,
+    currentFrameDate,
+    lastFrameDate,
+    firstFrameDate,
+    totalHours,
+    isLoading,
+    setMonthEvents,
+    setIsLoadingData,
+    setFilteredData,
+    setAppWebViewState,
+    setMonthTotalHours,
+    setCalendarView,
+    listTimeRegistration,
+    setDates,
+    getCurrentFrameDate,
+    getFirstFrameDate,
+    getLastFrameDate,
+    setDateFrameList,
+    setHolidays,
+  } = useTimeRegistration();
+
+  useEffect(() => {
+    if (isLoggedIn && isFromMobile) {
+      navigate(`/user/time-registration`);
+    }
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -50,6 +82,7 @@ const Login: React.FC = () => {
         setError("Please enter a valid email address.");
         return;
       }
+      setIsLoadingData(true);
 
       setError("");
       const response: loginProps = await userAuthenticate(email, password);
@@ -59,6 +92,8 @@ const Login: React.FC = () => {
     } catch (error) {
       console.error("Login Error:", error);
       setError("Invalid Credentials");
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -84,7 +119,7 @@ const Login: React.FC = () => {
             Time Registration
           </label>
         </div>
-
+        {isLoading && <LoadingSpinner />}
         {/* Replace the text with an image */}
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         <div className="flex flex-col mb-4">

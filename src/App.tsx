@@ -6,12 +6,10 @@ import Login from "./components/Login/Login";
 import NotFound from "./views/NotFound/NotFound";
 import ForgotPassword from "./views/ForgotPassword/ForgotPassword";
 import SetPassword from "./views/SetPassword/SetPassword";
-import { SessionContext, SessionProvider } from "./context/SessionContext";
-import { useContext } from "react";
+import { SessionProvider } from "./context/SessionContext";
+import ProtectedRoute from "./components/Routes/ProtectedRoutes";
 
 function App() {
-  const { isLoggedIn, userId, orgId, token, login, logout } =
-    useContext(SessionContext);
   return (
     <SessionProvider>
       <TimeRegistrationProvider>
@@ -19,6 +17,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route index path="/account/login" element={<Login />} />
+
               <Route
                 path="/user/time-registration"
                 element={<TimeRegistraionPage />}

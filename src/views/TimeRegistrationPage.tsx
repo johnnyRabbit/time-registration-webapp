@@ -23,7 +23,7 @@ import {
 import SpecificMonthsCalendar from "../components/EventCalendar/SpecificMonthsCalendar";
 import TopBar from "../components/TopBar/TopBar";
 import LoadingSpinner from "../components/Loading/LoadingSpinner";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SessionContext } from "../context/SessionContext";
 
 export type MonthData = {
@@ -82,6 +82,7 @@ const TimeRegistraionPage: React.FC = () => {
   } = useTimeRegistration();
   const { isLoggedIn, userId, orgId, token, login, logout } =
     useContext(SessionContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleButtonClick = (ele: any) => {
@@ -143,6 +144,10 @@ const TimeRegistraionPage: React.FC = () => {
 
   useEffect(() => {
     console.log("session context", userId, orgId, token);
+    if (!isLoggedIn) {
+      navigate("/account/login");
+      return;
+    }
 
     const fetchData = async () => {
       try {

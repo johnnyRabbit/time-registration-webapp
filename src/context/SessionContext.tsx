@@ -2,6 +2,7 @@ import React, { createContext, useState } from "react";
 
 interface SessionContextProps {
   isLoggedIn: boolean;
+  isFromMobile: boolean;
   userId: number | null;
   orgId: number | null;
   token: string | null;
@@ -11,6 +12,7 @@ interface SessionContextProps {
 
 export const SessionContext = createContext<SessionContextProps>({
   isLoggedIn: false,
+  isFromMobile: false,
   userId: null,
   orgId: null,
   token: null,
@@ -39,6 +41,10 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     sessionStorage.getItem("token")
   );
 
+  const [isFromMobile, setIsFromMobile] = useState<boolean>(
+    () => !!sessionStorage.getItem("isFromMobile")
+  );
+
   const login = (userId: number, orgId: number, token: string) => {
     setIsLoggedIn(true);
     setUserId(userId);
@@ -48,6 +54,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     sessionStorage.setItem("userId", userId.toString());
     sessionStorage.setItem("orgId", orgId.toString());
     sessionStorage.setItem("token", token);
+    sessionStorage.setItem("isFromMobile", "false");
   };
 
   const logout = () => {
@@ -58,13 +65,16 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     sessionStorage.removeItem("userId");
     sessionStorage.removeItem("orgId");
     sessionStorage.removeItem("token");
+    sessionStorage.removeItem("isFromMobile");
   };
 
   const sessionData: SessionContextProps = {
     isLoggedIn,
+    isFromMobile,
     userId,
     orgId,
     token,
+
     login,
     logout,
   };
