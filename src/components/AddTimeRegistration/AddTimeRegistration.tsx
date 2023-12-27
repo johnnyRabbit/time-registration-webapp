@@ -112,7 +112,7 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
 
   return (
     <div className="flex flex-col pr-4 pl-4">
-      <div className="w-full max-w-sm">
+      <div className="w-full">
         <select
           className="w-full p-4 text-gray-500 bg-white border border-r-transparent"
           style={{

@@ -43,7 +43,6 @@ const Login: React.FC = () => {
   const { isLoading, setIsLoadingData } = useTimeRegistration();
 
   useEffect(() => {
-    alert(JSON.stringify(localStorage.length));
     if (
       !!localStorage.getItem("isLoggedIn") &&
       !!localStorage.getItem("isFromMobile")
