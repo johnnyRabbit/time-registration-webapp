@@ -40,33 +40,9 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login, isLoggedIn, isFromMobile } = useContext(SessionContext);
-  const {
-    timeRegistrations,
-    showCalendarView,
-    holidaysList,
-    dataFrameList,
-    currentFrameDate,
-    lastFrameDate,
-    firstFrameDate,
-    totalHours,
-    isLoading,
-    setMonthEvents,
-    setIsLoadingData,
-    setFilteredData,
-    setAppWebViewState,
-    setMonthTotalHours,
-    setCalendarView,
-    listTimeRegistration,
-    setDates,
-    getCurrentFrameDate,
-    getFirstFrameDate,
-    getLastFrameDate,
-    setDateFrameList,
-    setHolidays,
-  } = useTimeRegistration();
+  const { isLoading, setIsLoadingData } = useTimeRegistration();
 
   useEffect(() => {
-    alert(JSON.stringify(sessionStorage));
     alert(JSON.stringify(localStorage));
     if (isLoggedIn && isFromMobile) {
       navigate(`/user/time-registration`);
