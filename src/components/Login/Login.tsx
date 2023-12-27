@@ -43,8 +43,18 @@ const Login: React.FC = () => {
   const { isLoading, setIsLoadingData } = useTimeRegistration();
 
   useEffect(() => {
-    alert(JSON.stringify(localStorage));
-    if (isLoggedIn && isFromMobile) {
+    alert(JSON.stringify(localStorage.length));
+    if (
+      !!localStorage.getItem("isLoggedIn") &&
+      !!localStorage.getItem("isFromMobile")
+    ) {
+      const userId = Number(localStorage.getItem("isFromMobile"));
+      const orgId = Number(localStorage.getItem("isFromMobile"));
+      const token = localStorage.getItem("isFromMobile") || "";
+      alert("userId " + userId);
+      alert("orgId " + orgId);
+      alert("token " + token);
+      login(userId, orgId, token);
       navigate(`/user/time-registration`);
     }
   }, []);

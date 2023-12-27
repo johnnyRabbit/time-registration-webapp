@@ -143,7 +143,7 @@ const TimeRegistraionPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log("session context", userId, orgId, token);
+    alert("aqui");
     if (!isLoggedIn) {
       navigate("/account/login");
       return;
