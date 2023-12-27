@@ -48,9 +48,9 @@ const Login: React.FC = () => {
       !!localStorage.getItem("isLoggedIn") &&
       !!localStorage.getItem("isFromMobile")
     ) {
-      const userId = Number(localStorage.getItem("isFromMobile"));
-      const orgId = Number(localStorage.getItem("isFromMobile"));
-      const token = localStorage.getItem("isFromMobile") || "";
+      const userId = Number(localStorage.getItem("userId"));
+      const orgId = Number(localStorage.getItem("orgId"));
+      const token = localStorage.getItem("token") || "";
       alert("userId " + userId);
       alert("orgId " + orgId);
       alert("token " + token);
