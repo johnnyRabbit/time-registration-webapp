@@ -143,7 +143,6 @@ const TimeRegistraionPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    alert("aqui");
     if (!isLoggedIn) {
       navigate("/account/login");
       return;

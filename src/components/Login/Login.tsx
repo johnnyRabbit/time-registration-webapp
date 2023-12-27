@@ -51,9 +51,7 @@ const Login: React.FC = () => {
       const userId = Number(localStorage.getItem("userId"));
       const orgId = Number(localStorage.getItem("orgId"));
       const token = localStorage.getItem("token") || "";
-      alert("userId " + userId);
-      alert("orgId " + orgId);
-      alert("token " + token);
+
       login(userId, orgId, token);
       navigate(`/user/time-registration`);
     }
