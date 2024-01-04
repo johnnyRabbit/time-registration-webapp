@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import Calendar, { TileDisabledFunc } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./EventCalendar.css";
@@ -112,6 +112,21 @@ const EventCalendar: React.FC<EventProps> = ({
 
   const { isLoggedIn, userId, orgId, token, login, logout } =
     useContext(SessionContext);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  /* useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        console.log("click outside");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []); */
 
   useEffect(() => {
     const event = (timeRegistrations || data)?.timeSheetCodes?.flatMap(
@@ -153,20 +168,30 @@ const EventCalendar: React.FC<EventProps> = ({
     listSelectedDates([]);
   };
 
-  const editTimeRegistration = (data: TimeSheetCodes) => {
+  const editTimeRegistration = (data: Times) => {
     setShowTRForm(true);
-    listSelectedDates([data?.times[0].date]);
-    editTimeRegistratrion(data);
+    listSelectedDates([data?.date]);
+
+    const editObject: any = timeRegistrations?.timeSheetCodes.reduce(
+      (sheetCode) => {
+        if (sheetCode.id === data.timeSheetCodeId) {
+          return { ...sheetCode, times: [data] };
+        }
+        return sheetCode;
+      }
+    );
+
+    editTimeRegistratrion(editObject);
   };
 
-  const removeItem = async (data: TimeSheetCodes): Promise<void> => {
+  const removeItem = async (data: Times): Promise<void> => {
     setIsLoadingData(true);
 
     try {
-      await removeUserTimes(data.times[0].id, token || "");
+      await removeUserTimes(data.id, token || "");
       setMonthEvents({});
 
-      const date = data.times[0].date;
+      const date = data.date;
       const dataRes = await getDateLovs(
         orgId || 0,
         "TIMEFRAME",

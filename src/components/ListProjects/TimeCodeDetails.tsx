@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import DeleteTimRegistration from "../DeleteTimeRegistration/DeleteTimeRegistration";
 import {
+  TimeCodes,
   TimeRegistration,
   TimeSheetCodeProps,
   TimeSheetCodes,
@@ -28,8 +29,8 @@ type timeCodeProps = {
   key: number;
   totalTime: number;
   screen?: string;
-  edit: (data: TimeSheetCodes) => void;
-  remove: (data: TimeSheetCodes) => void;
+  edit: (data: Times) => void;
+  remove: (data: Times) => void;
 };
 
 export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
@@ -39,22 +40,36 @@ export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
   remove,
 }) => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [timesDetails, setTimeDetails] = useState<Times>();
-  const { listTimeRegistration, currentFrameDate } = useTimeRegistration();
+  const [timesDetails, setTimeDetails] = useState<Times[]>();
+  const [menuOpenArray, setMenuOpenArray] = useState<boolean[]>(
+    timesDetails?.map(() => false) || []
+  );
+  const [allMenusOpen, setAllMenusOpen] = useState<boolean>(false);
+  const [timesSelected, setSelectedTimes] = useState<Times>();
+  const { timeRegistrations, listTimeRegistration, currentFrameDate } =
+    useTimeRegistration();
   const { isLoggedIn, userId, token, orgId, login, logout } =
     useContext(SessionContext);
+
   useEffect(() => {
     const dataDetails = data.times.flatMap((timeSheetCode) => timeSheetCode);
+    const booleanArray: boolean[] = Array(data.times.length).fill(false);
+
+    setTimeDetails(dataDetails);
+    setMenuOpenArray(booleanArray);
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        closeMenu();
+      if (!menuRef.current) {
+        return;
+      }
+
+      if (!menuRef.current.contains(event.target as Node)) {
+        closeAllMenus();
       }
     };
-
-    setTimeDetails(dataDetails[0]);
 
     document.addEventListener("mousedown", handleClickOutside);
 
@@ -63,19 +78,27 @@ export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
     };
   }, [data]);
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+  const closeAllMenus = () => {
+    setMenuOpenArray(Array(data.times.length).fill(false));
   };
 
-  const closeMenu = () => {
-    setMenuOpen(false);
+  const toggleMenu = (index: number) => {
+    if (!timeRegistrations?.complete) {
+      const newMenuOpenArray = menuOpenArray.map((isOpen, i) =>
+        i === index ? !isOpen : false
+      );
+      setMenuOpenArray(newMenuOpenArray);
+    }
   };
 
-  const handleDelete = (data: TimeSheetCodes) => {
-    setIsModalOpen(true);
+  const handleDelete = (data: Times, index: number) => {
+    const newMenuOpenArray = [...menuOpenArray];
+    newMenuOpenArray[index] = false;
+    setSelectedTimes(data);
+    setMenuOpenArray(newMenuOpenArray);
   };
 
-  const editTimeCode = (item: TimeSheetCodes) => {
+  const editTimeCode = (item: Times) => {
     edit(item);
   };
 
@@ -109,86 +132,94 @@ export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
     listTimeRegistration(userTimeRegistrationList);
   };
 
-  const handleConfirmDelete = (data: TimeSheetCodes) => {
+  const handleConfirmDelete = () => {
+    const data: any = timesSelected || undefined;
     remove(data);
     setIsModalOpen(false);
   };
 
   return (
-    <div
-      className="w-full relative p-2 flex flex-col justify-between rounded-sm bg-white pr-4 pl-4 mt-4"
-      ref={menuRef}
-    >
+    <div className="bg-red" ref={menuRef}>
       <DeleteTimRegistration
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={() => handleConfirmDelete(data)}
+        onConfirm={() => handleConfirmDelete()}
         title="Delete Confirmation"
         message="Are you sure you want to delete this item?"
       />
 
-      <div className="project-title flex flex-row justify-between mb-2">
-        <div className="flex flex-row justify-start items-center">
-          <span className=" text-[#1C85E8] font-semibold uppercase font-sans text-lg mr-6">
-            {data.timeCode.tsCode}
-          </span>
-          {data.pinned ? <FaThumbtack color="#E5C911" /> : <></>}
-        </div>
-        <div className="flex items-center">
-          <button onClick={toggleMenu}>
-            <FaEllipsisV color="#ABABAB" />
-          </button>
-          {menuOpen && (
-            <div className="origin-top-right absolute right-0  mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-              <div className="py-1 ">
-                {screen !== "mainScreen" ? (
-                  <button
-                    className="w-full flex flex-row items-center py-2 text-sm text-gray-700"
-                    onClick={() => editTimeCode(data)}
-                  >
-                    <FaEdit className="ml-4 mr-3" />
-                    Edit Code
-                  </button>
-                ) : (
-                  <></>
+      {timesDetails?.map((item, index) => {
+        return (
+          <div
+            key={index}
+            className="w-full relative p-2 flex flex-col justify-between rounded-sm bg-white pr-4 pl-4 mt-4"
+          >
+            <div className="project-title flex flex-row justify-between mb-2">
+              <div className="flex flex-row justify-start items-center">
+                <span className=" text-[#1C85E8] font-semibold uppercase font-sans text-lg mr-6">
+                  {data.timeCode.tsCode}
+                </span>
+                {data.pinned ? <FaThumbtack color="#E5C911" /> : <></>}
+              </div>
+              <div className="flex items-center">
+                <button onClick={() => toggleMenu(index)}>
+                  <FaEllipsisV color="#ABABAB" />
+                </button>
+                {menuOpenArray[index] && (
+                  <div className="origin-top-right absolute right-0  mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div className="py-1 ">
+                      {screen !== "mainScreen" ? (
+                        <button
+                          className="w-full flex flex-row items-center py-2 text-sm text-gray-700"
+                          onClick={() => editTimeCode(item)}
+                        >
+                          <FaEdit className="ml-4 mr-3" />
+                          Edit Code
+                        </button>
+                      ) : (
+                        <></>
+                      )}
+                      <button
+                        className="w-full flex flex-row items-center py-2 text-sm text-gray-700"
+                        onClick={() => setPinned(data)}
+                      >
+                        <FaThumbtack className="ml-4 mr-3" />
+                        {data.pinned ? "Unpin Project" : "Pin Project"}
+                      </button>
+                      <button
+                        className="w-full flex flex-row items-center py-2 text-sm text-gray-700"
+                        onClick={() => handleDelete(item, index)}
+                      >
+                        <FaTrash className="ml-4 mr-3" />
+                        Delete Times
+                      </button>
+                    </div>
+                  </div>
                 )}
-                <button
-                  className="w-full flex flex-row items-center py-2 text-sm text-gray-700"
-                  onClick={() => setPinned(data)}
-                >
-                  <FaThumbtack className="ml-4 mr-3" />
-                  {data.pinned ? "Unpin Project" : "Pin Project"}
-                </button>
-                <button
-                  className="w-full flex flex-row items-center py-2 text-sm text-gray-700"
-                  onClick={() => handleDelete(data)}
-                >
-                  <FaTrash className="ml-4 mr-3" />
-                  Delete Times
-                </button>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-      <div className="total-hours-days flex flex-row text-[#8F8F8F]   text-lg">
-        <span className="mr-6">Total Hours: {data.totalTime || 0}</span>
-        <span>
-          Total Days: {data.totalTime ? (data.totalTime / 8).toFixed(1) : 0}
-        </span>
-      </div>
-      {screen !== "mainScreen" ? (
-        <div className="flex pt-2 mt-2 flex-row items-center border-t-2">
-          <span className="text-[#0B2E5F] font-semibold mr-6">
-            {timesDetails?.hours} hours
-          </span>
-          <span>
-            {timesDetails?.comments ? <FaComment color="#1C85E8" /> : <></>}
-          </span>
-        </div>
-      ) : (
-        <></>
-      )}
+            <div className="total-hours-days flex flex-row text-[#8F8F8F]   text-lg">
+              <span className="mr-6">Total Hours: {data.totalTime || 0}</span>
+              <span>
+                Total Days:{" "}
+                {data.totalTime ? (data.totalTime / 8).toFixed(1) : 0}
+              </span>
+            </div>
+            {screen !== "mainScreen" ? (
+              <div className="flex pt-2 mt-2 flex-row items-center border-t-2">
+                <span className="text-[#0B2E5F] font-semibold mr-6">
+                  {item?.hours} hours
+                </span>
+                <span>
+                  {item?.comments ? <FaComment color="#1C85E8" /> : <></>}
+                </span>
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

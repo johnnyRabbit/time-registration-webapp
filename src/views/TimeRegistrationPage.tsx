@@ -236,6 +236,8 @@ const TimeRegistraionPage: React.FC = () => {
         setDateFrameList(dataFrame);
       } catch (error) {
         console.log("error", error);
+        logout();
+        navigate("/account/login");
       } finally {
         setIsLoadingData(false);
       }
