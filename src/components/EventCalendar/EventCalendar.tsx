@@ -728,24 +728,24 @@ const EventCalendar: React.FC<EventProps> = ({
         }
       />
       {view === "calendar" ? (
-        <>
-          <div className="flex flex-row pl-6 mt-4 mb-4">
-            <div className="flex flex-row text-xs">
+        <div>
+          <div className="flex pl-4 mt-4 mb-4 pr-4">
+            <div className="flex flex-col  text-xs">
               {holidays.map((item) => {
                 return (
-                  <div className="mr-4">
+                  <div className="mb-2">
                     <span className="text-[#1C85E8] font-semibold">
-                      {new Date(item.date).getDate()} -{" "}
+                      {new Date(item.date).getDate()}{" "}
                     </span>
                     <span className="text-[black] font-semibold">
-                      {item.description}
+                      - {item.description}
                     </span>
                   </div>
                 );
               })}
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <></>
       )}
