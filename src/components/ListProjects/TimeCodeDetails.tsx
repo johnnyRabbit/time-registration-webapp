@@ -95,6 +95,8 @@ export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
     const newMenuOpenArray = [...menuOpenArray];
     newMenuOpenArray[index] = false;
     setSelectedTimes(data);
+    setIsModalOpen(true);
+
     setMenuOpenArray(newMenuOpenArray);
   };
 
