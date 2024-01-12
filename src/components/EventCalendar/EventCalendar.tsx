@@ -172,14 +172,17 @@ const EventCalendar: React.FC<EventProps> = ({
     setShowTRForm(true);
     listSelectedDates([data?.date]);
 
-    const editObject: any = timeRegistrations?.timeSheetCodes.reduce(
+    const editObject: any = timeRegistrations?.timeSheetCodes.filter(
       (sheetCode) => {
         if (sheetCode.id === data.timeSheetCodeId) {
-          return { ...sheetCode, times: [data] };
+          sheetCode.times.filter((item) => {
+            if (item.date === data.date) sheetCode.times = [data];
+          });
+
+          return sheetCode;
         }
-        return sheetCode;
       }
-    );
+    )[0];
 
     editTimeRegistratrion(editObject);
   };
