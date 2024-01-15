@@ -275,12 +275,14 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const handleFormData = async (data: TimeRegistrationFormProps) => {
-    setIsLoadingData(true);
-
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
+    let lastSelectedDate = selectedDates[selectedDates.length - 1];
+    let totalHours = 0;
 
     try {
+      setIsLoadingData(true);
+
       if (timeRegistrations) {
         hasTimeCode =
           timeRegistrations?.timeSheetCodes?.filter((item) => {
@@ -395,7 +397,7 @@ const EventCalendar: React.FC<EventProps> = ({
             }))
             .filter((item) => item.times.length > 0),
         };
-        let totalHours = 0;
+
         if (Object.keys(userTimeRegistrationList).length !== 0) {
           totalHours = userTimeRegistrationList.timeSheetCodes.reduce(
             (total, timeSheetCode) => {
@@ -410,13 +412,14 @@ const EventCalendar: React.FC<EventProps> = ({
             0
           );
         }
+
+        setSelectedDates([lastSelectedDate]);
         setMonthTotalHours(totalHours | 0);
+        listSelectedDates([lastSelectedDate]);
+
         listTimeRegistration(userTimeRegistrationList);
         setFilteredData(filteredTimeRegistration);
       }
-
-      setSelectedDates([]);
-      listSelectedDates([]);
       setShowTRForm(false);
       setFormData(data);
     } catch (error) {
