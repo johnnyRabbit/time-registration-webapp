@@ -31,12 +31,11 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
   formData,
 }) => {
   const [timeData, setTimeData] = useState<TimeRegistrationFormProps>(formData);
-  const [timeCode, setTUserimeCode] = useState<TimeCodes[]>();
-  const [date, setDate] = useState<Date>();
-  const { timeSheetCodes, selectedDates, timeRegistrations, currentFrameDate } =
+  const [timeCode, setUserimeCode] = useState<TimeCodes[]>();
+  const { timeSheetCodes, selectedDates, timeRegistrations } =
     useTimeRegistration();
-  const { isLoggedIn, userId, orgId, token, login, logout } =
-    useContext(SessionContext);
+  const { userId, orgId, token } = useContext(SessionContext);
+
   useEffect(() => {
     const fetchUserTimeCodes = async () => {
       try {
@@ -45,7 +44,8 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
           userId || 0,
           token || ""
         );
-        setTUserimeCode(data);
+
+        setUserimeCode(data);
 
         if (timeSheetCodes) {
           setTimeCode(timeSheetCodes?.timeCode.tsCode);
@@ -89,17 +89,6 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
 
   const decrementTime = () => {
     setTime(timeData.hours - 0.5);
-  };
-
-  const parseDate = (date: string) => {
-    if (date) {
-      const parts = date.split("/");
-      if (parts.length === 3) {
-        const [day, month, year] = parts;
-        const isoDate = `${year}-${month}-${day}`;
-        return new Date(isoDate);
-      }
-    }
   };
 
   const handleFormSubmit = async () => {

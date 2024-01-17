@@ -93,10 +93,8 @@ const EventCalendar: React.FC<EventProps> = ({
     showCalendarView,
     timeSheetCodes,
     endDate,
-    dataFrameList,
     currentFrameDate,
     filteredData,
-    isLoading,
     events,
     setMonthEvents,
     setIsLoadingData,
@@ -104,29 +102,13 @@ const EventCalendar: React.FC<EventProps> = ({
     setHolidays,
     setMonthTotalHours,
     listTimeRegistration,
-    editTimeRegistratrion,
+    editUserTimeRegistratrion,
     listSelectedDates,
     setCalendarView,
     getCurrentFrameDate,
   } = useTimeRegistration();
 
-  const { isLoggedIn, userId, orgId, token, login, logout } =
-    useContext(SessionContext);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  /* useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        console.log("click outside");
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []); */
+  const { userId, orgId, token } = useContext(SessionContext);
 
   useEffect(() => {
     const event = (timeRegistrations || data)?.timeSheetCodes?.flatMap(
@@ -143,7 +125,7 @@ const EventCalendar: React.FC<EventProps> = ({
   }, [showCalendarView]);
 
   const onAddNewTR = () => {
-    editTimeRegistratrion({
+    editUserTimeRegistratrion({
       id: 0,
       timeCodeId: 0,
       timeSheetCodeId: 0,
@@ -169,11 +151,28 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const editTimeRegistration = (data: Times) => {
-    setShowTRForm(true);
     listSelectedDates([data?.date]);
+    let editObject: TimeSheetCodes = {
+      id: 0,
+      timeCodeId: 0,
+      timeSheetCodeId: 0,
+      timeCode: {
+        active: false,
+        billable: false,
+        id: 0,
+        maxTime: 0,
+        projectBillable: false,
+        totalTime: 0,
+        tsCode: "",
+      },
+      pinned: false,
+      timeSheetId: 0,
+      times: [],
+      totalTime: 0,
+    };
 
-    const editObject: any = timeRegistrations?.timeSheetCodes.filter(
-      (sheetCode) => {
+    if (editObject !== undefined && filteredData !== undefined) {
+      editObject = filteredData.timeSheetCodes.filter((sheetCode) => {
         if (sheetCode.id === data.timeSheetCodeId) {
           sheetCode.times.filter((item) => {
             if (item.date === data.date) sheetCode.times = [data];
@@ -181,10 +180,11 @@ const EventCalendar: React.FC<EventProps> = ({
 
           return sheetCode;
         }
-      }
-    )[0];
+      })[0];
 
-    editTimeRegistratrion(editObject);
+      editUserTimeRegistratrion(editObject);
+      setShowTRForm(true);
+    }
   };
 
   const removeItem = async (data: Times): Promise<void> => {
@@ -290,6 +290,12 @@ const EventCalendar: React.FC<EventProps> = ({
           }).length > 0;
 
         if (hasTimeCode) {
+          console.log(
+            "aquiiii",
+            timeRegistrations?.timeSheetCodes?.filter((item) => {
+              return item.timeCode.tsCode === data.timeCodeName;
+            })
+          );
           timeSheetCodeId = timeRegistrations?.timeSheetCodes?.filter(
             (item) => {
               return item.timeCode.tsCode === data.timeCodeName;
@@ -433,7 +439,7 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const cancelTR = () => {
-    editTimeRegistratrion({
+    editUserTimeRegistratrion({
       id: 0,
       timeCodeId: 0,
       timeSheetCodeId: 0,

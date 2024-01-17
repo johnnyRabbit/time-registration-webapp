@@ -121,7 +121,7 @@ type TimeRegistrationContextType = {
   getLastFrameDate: (dateFrame: DataFrameDateProps) => void;
   getCurrentFrameDate: (dateFrame: DataFrameDateProps) => void;
   listTimeRegistration: (registration: TimeRegistration) => void;
-  editTimeRegistratrion: (registration: TimeSheetCodes) => void;
+  editUserTimeRegistratrion: (registration: TimeSheetCodes) => void;
   listSelectedDates: (dates: string[]) => void;
   setDates: (startDate: string, endDate: string) => void;
   setCalendarView: (view: boolean) => void;
@@ -190,7 +190,7 @@ export function TimeRegistrationProvider({
     setFilteredTimeRegistration(registration);
   };
 
-  const editTimeRegistratrion = (timeSheetCodes: TimeSheetCodes) => {
+  const editUserTimeRegistratrion = (timeSheetCodes: TimeSheetCodes) => {
     setTimeSheetCodes(timeSheetCodes);
   };
 
@@ -272,7 +272,7 @@ export function TimeRegistrationProvider({
         setDates,
         listSelectedDates,
         listTimeRegistration,
-        editTimeRegistratrion,
+        editUserTimeRegistratrion,
       }}
     >
       {children}
