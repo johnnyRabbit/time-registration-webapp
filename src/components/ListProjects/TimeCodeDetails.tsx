@@ -157,8 +157,8 @@ export const TimeCodeItemDetail: React.FC<timeCodeProps> = ({
             className="w-full relative p-2 flex flex-col justify-between rounded-sm bg-white pr-4 pl-4 mt-4"
           >
             <div className="project-title flex flex-row justify-between mb-2">
-              <div className="flex flex-row justify-start items-center">
-                <span className=" text-[#1C85E8] font-semibold uppercase font-sans text-lg mr-6">
+              <div className="flex flex-row justify-start items-center  overflow-hidden">
+                <span className=" text-[#1C85E8] font-semibold uppercase font-sans overflow-ellipsis overflow-hidden text-lg  mr-1">
                   {data.timeCode.tsCode}
                 </span>
                 {data.pinned ? <FaThumbtack color="#E5C911" /> : <></>}

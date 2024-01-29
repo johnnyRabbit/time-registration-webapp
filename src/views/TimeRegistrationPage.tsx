@@ -194,8 +194,6 @@ const TimeRegistraionPage: React.FC = () => {
             token || ""
           );
 
-        console.log("dataLovs", dataLovs, lastFrameDate);
-
         setDates(dataLovs.startDate, lastFrameDate?.date || "");
 
         getCurrentFrameDate({
@@ -288,7 +286,7 @@ const TimeRegistraionPage: React.FC = () => {
           timeSheetId: timeRegistrations?.id,
           nextTimeFrameId: nextTimeFrame?.id,
         };
-        const respones = await fowardUserPins(params, token || "");
+        await fowardUserPins(params, token || "");
       } else {
         setIsLoadingData(false);
       }

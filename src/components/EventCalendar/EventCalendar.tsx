@@ -70,12 +70,12 @@ const EventCalendar: React.FC<EventProps> = ({
   //const [events, setEvents] = useState<Event>({});
   const [formData, setFormData] = useState<TimeRegistrationFormProps>({
     id: 0,
-    timeCodeId: 0,
+    timeCodeId: -1,
     hours: 0,
     comments: "",
     date: "",
     dates: [],
-    timeCodeName: "",
+    timeCodeName: "-1",
     timeFrameName: "",
     organizationName: "",
     timeSheetCodeId: 0,
@@ -297,29 +297,6 @@ const EventCalendar: React.FC<EventProps> = ({
     return null; // Return null if none of the formats match or parsing fails
   };
 
-  const formatDateWithFormat = (date: Date, format: string): string | null => {
-    try {
-      const options: Intl.DateTimeFormatOptions = {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        second: "numeric",
-        timeZone: "UTC",
-      };
-
-      const formattedDate = new Intl.DateTimeFormat("en-US", options).format(
-        date
-      );
-      return formattedDate;
-    } catch (error) {
-      console.error(`Error formatting date: ${error}`);
-      return null;
-    }
-  };
-
   const handleFormData = async (data: TimeRegistrationFormProps) => {
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
@@ -339,7 +316,7 @@ const EventCalendar: React.FC<EventProps> = ({
           const insertList: any = {};
           const repeatedTimeCodes: string[] = [];
 
-          console.log(
+          /* console.log(
             "aquiiii",
             timeRegistrations?.timeSheetCodes?.filter((item) => {
               if (item.timeCode.tsCode === data.timeCodeName) {
@@ -360,9 +337,9 @@ const EventCalendar: React.FC<EventProps> = ({
                 return item.times;
               }
             })
-          );
+          ); */
 
-          timeRegistrations?.timeSheetCodes?.forEach((item) => {
+          /*  timeRegistrations?.timeSheetCodes?.forEach((item) => {
             if (item.timeCode.tsCode === data.timeCodeName) {
               selectedDates.forEach((elt) => {
                 const parsedDate = formatDate(elt) || new Date();
@@ -382,7 +359,7 @@ const EventCalendar: React.FC<EventProps> = ({
                 });
               });
             }
-          });
+          }); */
 
           console.log("repeated", repeatedTimeCodes);
           console.log("insert", insertList);
@@ -489,7 +466,9 @@ const EventCalendar: React.FC<EventProps> = ({
               times: timeSheetCode.times.filter(
                 (time) =>
                   time.date.split("T")[0] ===
-                  formatDate(selectedDates[0])?.toJSON().split("T")[0]
+                  formatDate(selectedDates[0] || selectedDate || "")
+                    ?.toJSON()
+                    .split("T")[0]
               ),
             }))
             .filter((item) => item.times.length > 0),
@@ -520,6 +499,7 @@ const EventCalendar: React.FC<EventProps> = ({
       setShowTRForm(false);
       setFormData(data);
     } catch (error) {
+      console.log("error", error);
     } finally {
       setIsLoadingData(false);
     }

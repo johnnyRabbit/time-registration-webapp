@@ -65,15 +65,20 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
   };
 
   const setTimeCode = (newTimeCode: string) => {
-    const timeCodeId: number =
-      timeCode?.filter((item) => item.tsCode === newTimeCode)[0].id ||
-      timeSheetCodes?.timeCode.id ||
-      0;
+    console.log("new", newTimeCode);
+    let timeCodeId: number = -1;
+
+    if (newTimeCode !== "-1") {
+      timeCodeId =
+        timeCode?.filter((item) => item.tsCode === newTimeCode)[0].id ||
+        timeSheetCodes?.timeCode.id ||
+        0;
+    }
 
     setTimeData((prevData) => ({
       ...prevData,
       timeCodeName: newTimeCode,
-      timeCodeId: timeCodeId,
+      timeCodeId: timeCodeId || -1,
     }));
   };
 
@@ -170,15 +175,17 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
         <button
           disabled={
             selectedDates?.length
-              ? selectedDates?.length === 0 &&
-                timeData.timeCodeId === -1 &&
+              ? selectedDates?.length === 0 ||
+                timeData.timeCodeName === "-1" ||
+                timeData.timeCodeName === "" ||
                 timeData.hours === 0
               : false
           }
           className={`${
             selectedDates?.length
               ? selectedDates?.length > 0 &&
-                timeData.timeCodeId !== -1 &&
+                timeData.timeCodeName !== "-1" &&
+                timeData.timeCodeName !== "" &&
                 timeData.hours !== 0
                 ? "bg-[#0B2E5F]"
                 : "bg-[#BCBCBC]"
