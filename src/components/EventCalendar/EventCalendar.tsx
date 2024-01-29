@@ -24,7 +24,7 @@ import {
   getTimeSheetRegistration,
   removeUserTimes,
 } from "../../api/request";
-import { format, isValid, parse } from "date-fns";
+import { format, isValid, parse, fromUnixTime } from "date-fns";
 import { SessionContext } from "../../context/SessionContext";
 
 export interface Event {
@@ -115,6 +115,8 @@ const EventCalendar: React.FC<EventProps> = ({
       (timeSheetCode) => timeSheetCode.times
     );
 
+    console.log("endDate", endDate);
+
     event?.forEach((item) => {
       addEvent(new Date(item.date).toLocaleDateString(), item.id);
     });
@@ -151,7 +153,7 @@ const EventCalendar: React.FC<EventProps> = ({
   };
 
   const editTimeRegistration = (data: Times) => {
-    listSelectedDates([data?.date]);
+    setShowTRForm(true);
     let editObject: TimeSheetCodes = {
       id: 0,
       timeCodeId: 0,
@@ -183,7 +185,7 @@ const EventCalendar: React.FC<EventProps> = ({
       })[0];
 
       editUserTimeRegistratrion(editObject);
-      setShowTRForm(true);
+      listSelectedDates([data?.date]);
     }
   };
 
@@ -274,6 +276,50 @@ const EventCalendar: React.FC<EventProps> = ({
     return parsedDate;
   };
 
+  const formatDate = (dateString: string): Date | null => {
+    const formatsToTry: string[] = [
+      "dd/MM/yyyy",
+      "MM/dd/yyyy",
+      "yyyy/MM/dd",
+      "yyyy/dd/MM",
+    ];
+
+    for (const format of formatsToTry) {
+      const parsedDate = new Date(
+        dateString.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$2/$1/$3")
+      );
+
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      }
+    }
+
+    return null; // Return null if none of the formats match or parsing fails
+  };
+
+  const formatDateWithFormat = (date: Date, format: string): string | null => {
+    try {
+      const options: Intl.DateTimeFormatOptions = {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        timeZone: "UTC",
+      };
+
+      const formattedDate = new Intl.DateTimeFormat("en-US", options).format(
+        date
+      );
+      return formattedDate;
+    } catch (error) {
+      console.error(`Error formatting date: ${error}`);
+      return null;
+    }
+  };
+
   const handleFormData = async (data: TimeRegistrationFormProps) => {
     let timeSheetCodeId = 0;
     let hasTimeCode = false;
@@ -290,12 +336,57 @@ const EventCalendar: React.FC<EventProps> = ({
           }).length > 0;
 
         if (hasTimeCode) {
+          const insertList: any = {};
+          const repeatedTimeCodes: string[] = [];
+
           console.log(
             "aquiiii",
             timeRegistrations?.timeSheetCodes?.filter((item) => {
-              return item.timeCode.tsCode === data.timeCodeName;
+              if (item.timeCode.tsCode === data.timeCodeName) {
+                selectedDates.forEach((elt) => {
+                  const parsedDate = formatDate(elt) || new Date();
+                  const formattedDate = format(
+                    parsedDate,
+                    "yyyy-MM-dd'T'HH:mm:ss"
+                  );
+                  item.times.map((time) => {
+                    if (formattedDate === time.date) {
+                      console.log(time);
+                      return time;
+                    }
+                  });
+                });
+
+                return item.times;
+              }
             })
           );
+
+          timeRegistrations?.timeSheetCodes?.forEach((item) => {
+            if (item.timeCode.tsCode === data.timeCodeName) {
+              selectedDates.forEach((elt) => {
+                const parsedDate = formatDate(elt) || new Date();
+                const formattedDate = format(
+                  parsedDate,
+                  "yyyy-MM-dd'T'HH:mm:ss"
+                );
+                item.times.forEach((time) => {
+                  if (formattedDate === time.date) {
+                    console.log(time);
+                    repeatedTimeCodes.push(time.date);
+                  }
+
+                  if (formattedDate !== time.date) {
+                    console.log("insert item", item, formattedDate, time.date);
+                  }
+                });
+              });
+            }
+          });
+
+          console.log("repeated", repeatedTimeCodes);
+          console.log("insert", insertList);
+
           timeSheetCodeId = timeRegistrations?.timeSheetCodes?.filter(
             (item) => {
               return item.timeCode.tsCode === data.timeCodeName;
@@ -330,7 +421,7 @@ const EventCalendar: React.FC<EventProps> = ({
 
         const userTimeRegistrationDetails = {
           id: data.id,
-          date: parseDate(
+          date: formatDate(
             selectedDates[0] || selectedDate || new Date().toLocaleString()
           )?.toJSON(),
           hours: data.hours,
@@ -348,7 +439,7 @@ const EventCalendar: React.FC<EventProps> = ({
         } else {
           const listOfTimes: any[] = [];
           selectedDates.forEach((item) => {
-            const parsedDate = parseDate(item) || new Date();
+            const parsedDate = formatDate(item) || new Date();
             const formattedDate = format(
               parsedDate,
               "yyyy-MM-dd'T'HH:mm:ss.SSS"
@@ -398,7 +489,7 @@ const EventCalendar: React.FC<EventProps> = ({
               times: timeSheetCode.times.filter(
                 (time) =>
                   time.date.split("T")[0] ===
-                  parseDate(selectedDates[0])?.toJSON().split("T")[0]
+                  formatDate(selectedDates[0])?.toJSON().split("T")[0]
               ),
             }))
             .filter((item) => item.times.length > 0),
@@ -643,6 +734,7 @@ const EventCalendar: React.FC<EventProps> = ({
         selectRange={false}
         // tileDisabled={tileDisabled}
         onActiveStartDateChange={async ({ activeStartDate }) => {
+          console.log("ative", activeStartDate);
           setIsLoadingData(true);
           setFilteredData({
             complete: false,
@@ -721,13 +813,27 @@ const EventCalendar: React.FC<EventProps> = ({
             }
           });
 
-          if (selectedDates.includes(formattedDate) && showTRForm) {
+          if (
+            selectedDates.includes(formattedDate) &&
+            showTRForm &&
+            !classNames.includes("selected")
+          ) {
             classNames += " selected";
           } else {
             classNames += "";
           }
 
           if (selectedDate === formattedDate && !showTRForm) {
+            classNames += " selected_active";
+          } else {
+            classNames += "";
+          }
+
+          if (
+            selectedDate === formattedDate &&
+            timeSheetCodes?.id != 0 &&
+            showTRForm
+          ) {
             classNames += " selected_active";
           } else {
             classNames += "";
