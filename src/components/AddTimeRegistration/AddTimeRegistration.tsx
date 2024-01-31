@@ -174,12 +174,10 @@ const TimeRegistrationForm: React.FC<TimeRegistration> = ({
         <div className="w-4"></div>
         <button
           disabled={
-            selectedDates?.length
-              ? selectedDates?.length === 0 ||
-                timeData.timeCodeName === "-1" ||
-                timeData.timeCodeName === "" ||
-                timeData.hours === 0
-              : false
+            selectedDates?.length === 0 ||
+            timeData.timeCodeName === "-1" ||
+            timeData.timeCodeName === "" ||
+            timeData.hours === 0
           }
           className={`${
             selectedDates?.length
