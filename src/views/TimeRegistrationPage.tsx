@@ -49,6 +49,10 @@ declare global {
   }
 }
 
+interface WindowWithFunction extends Window {
+  showAlert?: () => void;
+}
+
 const TimeRegistraionPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState<boolean>(false);
   const [showFormBox, setshowFormBox] = useState<boolean>(false);
@@ -245,6 +249,12 @@ const TimeRegistraionPage: React.FC = () => {
 
     fetchData();
   }, [location.search]);
+
+  const showAlert = () => {
+    alert("function");
+  };
+
+  (window as WindowWithFunction).showAlert = showAlert;
 
   const findNextObjectById = (
     list: DataFrameDateProps[],
