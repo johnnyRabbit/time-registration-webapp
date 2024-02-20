@@ -393,6 +393,12 @@ const TimeRegistraionPage: React.FC = () => {
 
   return (
     <div className={`${isIOS && isMobile && "mt-5"}`}>
+      <div>
+        <p>Is mobile? {isMobile ? "Yes" : "No"}</p>
+        <p>Is browser? {isBrowser ? "Yes" : "No"}</p>
+        <p>Is Android? {isAndroid ? "Yes" : "No"}</p>
+        <p>Is iOS? {isIOS ? "Yes" : "No"}</p>
+      </div>
       <TopBar
         title={"Time Registration"}
         view={showCalendar ? "calendarView" : "mainView"}
