@@ -1,5 +1,4 @@
 import React from "react";
-import { isMobile, isBrowser, isAndroid, isIOS } from "react-device-detect";
 
 interface TopBarProps {
   title: string;
@@ -9,9 +8,7 @@ interface TopBarProps {
 const TopBar: React.FC<TopBarProps> = ({ title, view }) => {
   return (
     <div
-      className={`bg-[#FFFFFF] text-[#3A3A3A] py-4 px-4 flex items-center justify-between fixed top-${
-        isMobile && isIOS ? 10 : 0
-      } w-full z-10`}
+      className={`bg-[#FFFFFF] text-[#3A3A3A] py-4 px-4 flex items-center justify-between fixed top-0 w-full z-10`}
     >
       <div
         className="flex items-center cursor-pointer"

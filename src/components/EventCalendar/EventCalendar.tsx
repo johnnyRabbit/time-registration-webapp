@@ -115,8 +115,6 @@ const EventCalendar: React.FC<EventProps> = ({
       (timeSheetCode) => timeSheetCode.times
     );
 
-    console.log("endDate", endDate);
-
     event?.forEach((item) => {
       addEvent(new Date(item.date).toLocaleDateString(), item.id);
     });
