@@ -1,4 +1,5 @@
 import React from "react";
+import { isMobile, isBrowser, isAndroid, isIOS } from "react-device-detect";
 
 interface TopBarProps {
   title: string;
@@ -13,6 +14,12 @@ const TopBar: React.FC<TopBarProps> = ({ title, view }) => {
         id="backBtn"
         datatype={view}
       >
+        <div>
+          <p>Is mobile? {isMobile ? "Yes" : "No"}</p>
+          <p>Is browser? {isBrowser ? "Yes" : "No"}</p>
+          <p>Is Android? {isAndroid ? "Yes" : "No"}</p>
+          <p>Is iOS? {isIOS ? "Yes" : "No"}</p>
+        </div>
         {/* You can use an SVG or an icon library for the back arrow */}
         <svg
           className="w-6 h-6 mr-2"
