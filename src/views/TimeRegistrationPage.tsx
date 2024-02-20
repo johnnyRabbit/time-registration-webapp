@@ -25,6 +25,7 @@ import TopBar from "../components/TopBar/TopBar";
 import LoadingSpinner from "../components/Loading/LoadingSpinner";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SessionContext } from "../context/SessionContext";
+import { isMobile, isBrowser, isAndroid, isIOS } from "react-device-detect";
 
 export type MonthData = {
   id: number;
@@ -391,7 +392,7 @@ const TimeRegistraionPage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className={`${isIOS && isMobile && "mt-5"}`}>
       <TopBar
         title={"Time Registration"}
         view={showCalendar ? "calendarView" : "mainView"}
