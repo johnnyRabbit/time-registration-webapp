@@ -392,7 +392,7 @@ const TimeRegistraionPage: React.FC = () => {
   };
 
   return (
-    <div className={`${isIOS && isMobile && "mt-5"}`}>
+    <div className="mt-5">
       <div>
         <p>Is mobile? {isMobile ? "Yes" : "No"}</p>
         <p>Is browser? {isBrowser ? "Yes" : "No"}</p>
